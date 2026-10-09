@@ -1067,7 +1067,7 @@
           </div>
           <div class="filter-actions">
             <button class="btn" @click="resetFilters" title="重置所有筛选条件"><icon name="refresh" />重置</button>
-            <button class="btn primary" @click="onSearch" title="按当前筛选条件查询"><icon name="search" />查询</button>
+            <button class="btn primary" @click="onSearch" title="按当前筛选条件查询"><icon name="search" />搜索</button>
           </div>
         </div>
       </div>
@@ -1077,7 +1077,7 @@
     <div class="card">
       <div class="card-header">
         <span class="card-title">作业任务列表</span>
-        <div class="table-toolbar" style="display: flex; align-items: center; gap: 8px;">
+        <div class="table-toolbar" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;">
           <button class="btn primary" @click="handleAdd" style="margin-right: 4px;" title="新增作业任务">
             <span style="display:inline-flex;align-items:center;gap:4px;">
               <span style="font-size:15px;line-height:1;font-weight:600;">+</span>
@@ -1641,7 +1641,7 @@
       const shuffled = DETECTION_TYPES.slice().sort(() => 0.5 - Math.random()).slice(0, detectionCount);
       const content = shuffled.join('、');
       const truncated = content.length > 20 ? content.slice(0, 20) + '…' : content;
-      const startDate = new Date(2026, 8, 1 + (i % 20), 8 + (i % 10), (i * 7) % 60, 0);
+      const startDate = new Date(2026, 9, 1 + (i % 7), 8 + (i % 10), (i * 7) % 60, 0);
       const endDate = new Date(startDate.getTime() + (2 + i % 6) * 3600 * 1000);
       // 30% 概率未关联摄像头
       const hasCam = i % 10 !== 3 && i % 7 !== 2;
@@ -2327,38 +2327,45 @@
         this.selectedCameraIds = [];
         this.showEditModal = true;
       },
-      // 随机刷新 1-2 条数据
+      // 随机新增 1-2 条数据（模拟盈科系统同步拉取）
       refreshTableData() {
-        if (this.tableData.length === 0) {
-          this.showToast('info', '当前表格无数据可刷新');
-          return;
-        }
-        const updateCount = Math.random() < 0.5 ? 1 : 2;
-        const idxList = [];
-        for (let i = 0; i < updateCount; i++) {
-          const idx = Math.floor(Math.random() * this.tableData.length);
-          if (idxList.indexOf(idx) < 0) idxList.push(idx);
-        }
+        const addCount = Math.random() < 0.5 ? 1 : 2;
         const DEVICE_LABELS = DEVICE_OPTIONS.filter(d => d.value !== 'all').map(d => d.label);
         const JOB_TYPE_LABELS = JOB_TYPE_OPTIONS.filter(t => t.value !== 'all').map(t => t.label);
         const APPROVE_LABELS = APPROVE_OPTIONS.map(a => a.label);
-        const STATUSES = JOB_STATUSES;
-        idxList.forEach(idx => {
-          const row = this.tableData[idx];
+        const newRows = [];
+        for (let i = 0; i < addCount; i++) {
+          const idx = this.tableData.length + i + 1;
           const newDevice = DEVICE_LABELS[Math.floor(Math.random() * DEVICE_LABELS.length)];
           const newJobType = JOB_TYPE_LABELS[Math.floor(Math.random() * JOB_TYPE_LABELS.length)];
-          const newStatus = STATUSES[Math.floor(Math.random() * STATUSES.length)];
+          const newStatus = JOB_STATUSES[Math.floor(Math.random() * JOB_STATUSES.length)];
           const newApprove = APPROVE_LABELS[Math.floor(Math.random() * APPROVE_LABELS.length)];
           const shuffled = DETECTION_TYPES.slice().sort(() => 0.5 - Math.random()).slice(0, 2 + Math.floor(Math.random() * 3));
           const content = shuffled.join('、');
-          row.device = newDevice;
-          row.jobType = newJobType;
-          row.status = newStatus;
-          row.approveStatus = newApprove;
-          row.content = content.length > 20 ? content.slice(0, 20) + '…' : content;
-          row.fullContent = content;
-        });
-        this.showToast('success', '已随机刷新 ' + idxList.length + ' 条数据');
+          const hasCam = Math.random() > 0.3;
+          const camIdx = Math.floor(Math.random() * 6);
+          const startDate = new Date();
+          const endDate = new Date(startDate.getTime() + (2 + Math.floor(Math.random() * 6)) * 3600 * 1000);
+          const newRow = {
+            code: 'YK2026' + String(900 + idx).padStart(4, '0'),
+            device: newDevice,
+            jobType: newJobType,
+            content: content.length > 20 ? content.slice(0, 20) + '…' : content,
+            fullContent: content,
+            status: newStatus,
+            approveStatus: newApprove,
+            startTime: fmtDate(startDate),
+            endTime: fmtDate(endDate),
+            analysisOn: hasCam ? Math.random() > 0.5 : false,
+            cameraId: hasCam ? ('C00' + (camIdx + 1)) : null
+          };
+          newRows.push(newRow);
+        }
+        // 把新数据插入到表格头部
+        this.tableData = newRows.concat(this.tableData);
+        // 同步清掉新增数据的选择状态
+        this.selectedRowKeys = this.selectedRowKeys.filter(c => newRows.findIndex(r => r.code === c) < 0);
+        this.showToast('success', '已从盈科系统同步新增 ' + newRows.length + ' 条数据');
       },
       handleBatchDelete() {
         if (!this.selectedRowKeys.length) return;
