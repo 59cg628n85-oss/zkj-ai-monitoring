@@ -1,0 +1,2681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>中科炼化AI智慧安全监控系统</title>
+  <link rel="stylesheet" href="arco.css">
+  <style>
+    :root {
+      --primary: rgb(1, 120, 236);
+      --primary-1: rgba(1,120,236,0.08);
+      --primary-2: rgba(1,120,236,0.16);
+      --primary-6: rgb(1, 120, 236);
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+      background: #f5f6f9;
+      color: #1d2129;
+      min-height: 100vh;
+    }
+    [v-cloak] { display: none !important; }
+    .icon { width: 1em; height: 1em; display: inline-block; vertical-align: -2px; flex-shrink: 0; }
+
+    /* ============ Header ============ */
+    .app-header {
+      height: 64px;
+      background: linear-gradient(90deg, rgb(1, 120, 236) 0%, rgb(36, 144, 245) 100%);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .app-header .logo {
+      display: flex; align-items: center; gap: 12px;
+      color: #fff; font-size: 20px; font-weight: 600;
+    }
+    .app-header .logo .logo-icon {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.18);
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .app-header .header-right {
+      display: flex; align-items: center; gap: 20px;
+      color: #fff; font-size: 14px;
+    }
+    .app-header .header-right .header-time {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .app-header .header-right .user-info {
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+    }
+    .app-header .header-right .user-info .avatar {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-divider {
+      width: 1px; height: 20px;
+      background: rgba(255,255,255,0.4);
+    }
+    .app-body { padding: 16px 24px; }
+
+    /* ============ Tabs ============ */
+    .tabs-bar {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      padding: 0 24px;
+      display: flex;
+      gap: 32px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .tabs-bar .tab {
+      padding: 16px 0;
+      font-size: 15px;
+      font-weight: 500;
+      color: #4e5969;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s;
+    }
+    .tabs-bar .tab:hover { color: var(--primary); }
+    .tabs-bar .tab.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .tabs-bar .tab.active::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ============ Empty ============ */
+    .empty-container {
+      background: #fff;
+      border-radius: 8px;
+      padding: 80px 0;
+      margin-top: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    .empty-container .empty-icon { font-size: 64px; opacity: 0.4; margin-bottom: 16px; color: #c9cdd4; }
+    .empty-container .empty-text { color: #86909c; margin-bottom: 16px; }
+
+    /* ============ Cards ============ */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      margin-top: 16px;
+    }
+    .card .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f2f5;
+      font-weight: 600; font-size: 16px;
+    }
+    .card .card-header .card-title {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card .card-header .card-title::before {
+      content: '';
+      width: 4px; height: 14px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    .card .card-body { padding: 20px; }
+
+    /* ============ Filter Form ============ */
+    .filter-form {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .filter-actions {
+      grid-column: 1 / -1;
+      display: flex; justify-content: flex-end; gap: 12px;
+      border-top: 1px dashed #e5e6eb;
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .form-label {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #4e5969;
+    }
+
+    /* ============ Inputs / Selects ============ */
+    .ipt {
+      width: 100%;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #1d2129;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .ipt:hover { border-color: var(--primary); }
+    .ipt:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(1,120,236,0.15); }
+    .ipt::placeholder { color: #c9cdd4; }
+    .ipt[readonly] { background: #f7f8fa; cursor: not-allowed; }
+    .ipt-tall { height: 64px; padding: 6px 12px; line-height: 1.6; resize: vertical; }
+
+    /* Select trigger - shows ALL tags (with overflow) */
+    .select-trigger {
+      width: 100%; min-height: 32px;
+      padding: 2px 30px 2px 8px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+      font-size: 14px; color: #1d2129;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .select-trigger:hover { border-color: var(--primary); }
+    .select-trigger.open { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(1,120,236,0.15); }
+    .select-trigger .ph { color: #c9cdd4; padding-left: 4px; }
+    .select-trigger .sel-tag {
+      background: var(--primary-1);
+      color: var(--primary);
+      padding: 1px 4px 1px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      display: inline-flex; align-items: center; gap: 4px;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .select-trigger .sel-tag .x { cursor: pointer; opacity: 0.6; padding: 0 4px; }
+    .select-trigger .sel-tag .x:hover { opacity: 1; }
+    .select-trigger::after {
+      content: ''; position: absolute; right: 10px; top: 50%;
+      transform: translateY(-50%);
+      border: 4px solid transparent;
+      border-top-color: #c9cdd4;
+      pointer-events: none;
+    }
+    .select-pop {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 4px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      max-height: 280px; overflow-y: auto;
+      z-index: 1000;
+    }
+    .select-pop .sel-opt {
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1d2129;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .select-pop .sel-opt:hover { background: var(--primary-1); }
+    .select-pop .sel-opt.sel { background: var(--primary-2); color: var(--primary); font-weight: 500; }
+    .select-pop .sel-opt .check { color: var(--primary); }
+    .select-wrap { position: relative; }
+
+    /* Select overflow tooltip */
+    .select-tooltip {
+      position: fixed;
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      z-index: 3000;
+      max-width: 360px;
+      pointer-events: none;
+      animation: fadeIn 0.15s;
+    }
+    .select-tooltip .tt-row {
+      padding: 2px 0;
+      color: #1d2129;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .select-tooltip .tt-row .tag {
+      background: var(--primary-1);
+      color: var(--primary);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    /* ============ Date picker ============ */
+    .dt-trigger {
+      width: 100%; min-height: 32px;
+      padding: 4px 12px 4px 30px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 14px;
+      color: #1d2129;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .dt-trigger .ic-abs {
+      position: absolute;
+      left: 9px; top: 50%;
+      transform: translateY(-50%);
+      color: #86909c;
+      pointer-events: none;
+    }
+    .dt-trigger:hover { border-color: var(--primary); }
+    .dt-trigger .ph { color: #c9cdd4; flex: 1; }
+    .dt-trigger .ic { margin-right: 6px; opacity: 0.6; color: #86909c; }
+    .dt-pop {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      padding: 12px;
+      z-index: 1000;
+      font-size: 13px;
+    }
+    .dt-pop .dt-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .dt-pop .dt-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+    }
+    .dt-pop .dt-grid .cell {
+      padding: 6px 0; text-align: center; cursor: pointer; border-radius: 3px;
+      font-size: 12px;
+    }
+    .dt-pop .dt-grid .cell:hover { background: var(--primary-1); }
+    .dt-pop .dt-grid .cell.sel { background: var(--primary); color: #fff; }
+    .dt-pop .dt-grid .cell.in-range { background: var(--primary-2); }
+    .dt-pop .dt-grid .cell.dim { color: #c9cdd4; }
+    .dt-pop .dt-grid .hd { font-weight: 500; color: #86909c; cursor: default; font-size: 12px; }
+    .dt-pop .dt-grid .hd:hover { background: transparent; }
+    .dt-pop .dt-time { display: flex; gap: 8px; margin-top: 10px; align-items: center; justify-content: center; }
+    .dt-pop .dt-time input {
+      width: 50px; padding: 4px 6px; text-align: center;
+      border: 1px solid #c9cdd4; border-radius: 3px;
+      font-size: 13px;
+    }
+    .dt-pop .dt-actions {
+      margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px;
+      border-top: 1px solid #f0f2f5; padding-top: 8px;
+    }
+
+    /* ============ Buttons ============ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px;
+      height: 32px; padding: 0 16px;
+      border: 1px solid #c9cdd4;
+      background: #fff; color: #1d2129;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn:hover .icon { color: var(--primary); }
+    .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn.primary:hover { background: rgb(36, 144, 245); border-color: rgb(36, 144, 245); color: #fff; }
+    .btn.dashed { border-style: dashed; }
+    .btn.danger { color: #f53f3f; border-color: #f53f3f; }
+    .btn.danger:hover { background: #f53f3f; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.sm { height: 24px; padding: 0 10px; font-size: 12px; }
+    .btn .icon { font-size: 14px; }
+    .btn.sm .icon { font-size: 12px; }
+
+    /* ============ Table ============ */
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .table th, .table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f2f5;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .table th {
+      background: #fafbfc;
+      color: #1d2129;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .table tr:hover td { background: #fafbfc; }
+    .table td .link {
+      color: var(--primary); cursor: pointer;
+      display: inline-flex; align-items: center; gap: 2px;
+    }
+    .table td .link:hover { text-decoration: underline; }
+    .table td .link.danger { color: #f53f3f; }
+    .table .checkbox-cell {
+      display: inline-block; vertical-align: middle;
+      width: 16px; height: 16px;
+      border: 1.5px solid #c9cdd4;
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+    }
+    .table .checkbox-cell.checked {
+      background: var(--primary); border-color: var(--primary);
+    }
+    .table .checkbox-cell.checked::after {
+      content: ''; position: absolute;
+      left: 4px; top: 1px;
+      width: 4px; height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .table .checkbox-cell.indeterminate { background: var(--primary); border-color: var(--primary); }
+    .table .checkbox-cell.indeterminate::after {
+      content: ''; position: absolute;
+      left: 3px; top: 6px;
+      width: 8px; height: 2px;
+      background: #fff;
+    }
+    .content-cell {
+      display: inline-block;
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: help;
+    }
+
+    /* ============ Status tags ============ */
+    .status-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 18px;
+    }
+    .status-tag .dot {
+      width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+    }
+    .status-tag.not-started { background: #f0f2f5; color: #4e5969; }
+    .status-tag.ongoing { background: rgba(1,120,236,0.12); color: rgb(1,120,236); }
+    .status-tag.finished { background: #e8f4ee; color: #00b42a; }
+    .status-tag.cancelled { background: #ffece8; color: #f53f3f; }
+
+    .analysis-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    }
+    .analysis-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .analysis-tag.pending-associate { background: #fff1f0; color: #ff7d00; border: 1px solid #ffccc7; }
+    .analysis-tag.pending-analyze { background: #f0f2f5; color: #86909c; }
+    .analysis-tag.analyzing { background: rgba(1,120,236,0.12); color: rgb(1,120,236); }
+    .analysis-tag.analyzing .dot { animation: pulse 1.5s infinite; }
+    .analysis-tag.abnormal { background: #ffece8; color: #f53f3f; }
+    .analysis-tag.abnormal .dot { animation: pulse 1.5s infinite; }
+    /* 作业票状态（有效/无效） */
+    .ticket-status-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    }
+    .ticket-status-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .ticket-status-tag.valid { background: #e8f4ee; color: #00b42a; }
+    .ticket-status-tag.invalid { background: #f5f5f5; color: #86909c; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* 审批状态样式 */
+    .approve-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    }
+    .approve-tag.pending { background: #fff1f0; color: #ff7d00; border: 1px solid #ffd591; }
+    .approve-tag.approved { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .approve-tag.rejected { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+    .approve-tag.draft { background: #f0f2f5; color: #86909c; }
+
+    /* ============ Switch ============ */
+    .switch {
+      display: inline-block;
+      width: 36px; height: 20px;
+      border-radius: 10px;
+      background: #c9cdd4;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .switch.on { background: var(--primary); }
+    .switch.disabled { opacity: 0.4; cursor: not-allowed; }
+    .switch .knob {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .switch.on .knob { left: 18px; }
+
+    /* ============ Pagination ============ */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-top: 1px solid #f0f2f5;
+      font-size: 14px;
+    }
+    .pagination .pg-info { color: #86909c; }
+    .pagination .pg-controls { display: flex; align-items: center; gap: 8px; }
+    .pagination .pg-btn {
+      min-width: 32px; height: 32px;
+      padding: 0 8px;
+      border: 1px solid #c9cdd4;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #1d2129;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .pagination .pg-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .pagination .pg-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .pagination .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination .pg-jumper input {
+      width: 50px; height: 32px;
+      padding: 0 6px; text-align: center;
+      border: 1px solid #c9cdd4; border-radius: 4px;
+      margin: 0 4px;
+    }
+    .pagination .pg-size {
+      height: 32px;
+      padding: 0 24px 0 8px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ============ Modal ============ */
+    .modal-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 60px;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      width: 880px; max-width: 95vw;
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+      animation: modalIn 0.2s;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+    .modal .m-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 16px; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal .m-header .close { cursor: pointer; color: #86909c; font-size: 20px; padding: 4px; }
+    .modal .m-header .close:hover { color: #1d2129; }
+    .modal .m-body { padding: 24px 32px; flex: 1; overflow-y: auto; }
+    .modal .m-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f0f2f5;
+      background: #fafbfc;
+      display: flex; justify-content: flex-end; gap: 12px;
+    }
+
+    /* ============ Steps ============ */
+    .steps {
+      display: flex; align-items: center;
+      padding: 0 0 24px;
+      border-bottom: 1px solid #f0f2f5;
+      margin-bottom: 24px;
+    }
+    .steps .step {
+      flex: 1;
+      display: flex; align-items: center;
+    }
+    .steps .step .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #f0f2f5;
+      color: #86909c;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 500; font-size: 14px;
+      flex-shrink: 0;
+    }
+    .steps .step.done .step-num { background: var(--primary); color: #fff; }
+    .steps .step.active .step-num { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(1,120,236,0.15); }
+    .steps .step .step-info { margin-left: 10px; }
+    .steps .step .step-title { font-size: 14px; color: #1d2129; font-weight: 500; }
+    .steps .step.active .step-title { color: var(--primary); }
+    .steps .step .step-desc { font-size: 12px; color: #86909c; }
+    .steps .step-line { flex: 1; height: 1px; background: #e5e6eb; margin: 0 16px; }
+    .steps .step.done + .step-line { background: var(--primary); }
+
+    /* ============ Form Layout ============ */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; }
+    .form-grid .form-full { grid-column: 1 / -1; }
+    .form-row label { display: block; margin-bottom: 6px; font-size: 14px; color: #4e5969; }
+    .form-row label .req { color: #f53f3f; margin-right: 2px; }
+    .radio-group { display: flex; gap: 16px; }
+    .radio-group .radio { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 0; }
+    .radio-group .radio .r {
+      width: 14px; height: 14px;
+      border: 1.5px solid #c9cdd4;
+      border-radius: 50%;
+      position: relative;
+    }
+    .radio-group .radio.on .r { border-color: var(--primary); }
+    .radio-group .radio.on .r::after {
+      content: ''; position: absolute;
+      top: 2px; left: 2px;
+      width: 8px; height: 8px;
+      background: var(--primary); border-radius: 50%;
+    }
+
+    .coord-row { display: flex; align-items: center; gap: 8px; }
+    .coord-row .ipt { flex: 1; }
+    .coord-row .btn { flex-shrink: 0; }
+
+    /* ============ Cameras (Step 2) ============ */
+    .step2-layout { display: grid; grid-template-columns: 1fr 320px; gap: 16px; min-height: 480px; }
+    .cam-map-wrap {
+      position: relative;
+      border: 1px solid #e5e6eb;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f5f6f9;
+      min-height: 480px;
+    }
+    .cam-map-wrap .map-img {
+      display: block;
+      width: 100%; height: auto;
+      user-select: none;
+    }
+    .cam-map-wrap .job-pin {
+      position: absolute;
+      width: 36px; height: 36px;
+      transform: translate(-50%, -100%);
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      pointer-events: none;
+    }
+    .cam-map-wrap .cam-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 5;
+    }
+    .cam-map-wrap .cam-pin .cam-icon {
+      width: 32px; height: 32px;
+      background: #fff;
+      border: 2px solid #c9cdd4;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #4e5969;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: all 0.2s;
+    }
+    .cam-map-wrap .cam-pin .cam-icon svg { width: 16px; height: 16px; }
+    .cam-map-wrap .cam-pin:hover .cam-icon { transform: scale(1.1); }
+    .cam-map-wrap .cam-pin.selected .cam-icon {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      transform: scale(1.15);
+    }
+    .cam-map-wrap .cam-pin.nearest .cam-icon::after {
+      content: '最近';
+      position: absolute;
+      top: -22px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .cam-map-wrap .cam-pin.fault .cam-icon {
+      border-color: #f53f3f;
+      color: #f53f3f;
+    }
+    .cam-map-wrap .cam-pin.fault.selected {
+      box-shadow: 0 0 0 4px rgba(245,63,63,0.15);
+    }
+
+    .cam-sidebar {
+      display: flex; flex-direction: column;
+      gap: 12px;
+      max-height: 540px;
+    }
+    .cam-search {
+      position: relative;
+    }
+    .cam-search input {
+      width: 100%; height: 32px;
+      padding: 0 12px 0 30px;
+      border: 1px solid #c9cdd4;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .cam-search input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(1,120,236,0.15); }
+    .cam-search .search-icon {
+      position: absolute;
+      left: 9px; top: 50%;
+      transform: translateY(-50%);
+      color: #86909c;
+    }
+    .cam-list {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #e5e6eb;
+      border-radius: 6px;
+      background: #fff;
+    }
+    .cam-list-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f2f5;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .cam-list-item:last-child { border-bottom: none; }
+    .cam-list-item:hover { background: #fafbfc; }
+    .cam-list-item.selected { background: rgba(1,120,236,0.08); border-left: 3px solid var(--primary); }
+    .cam-list-item .l-icon {
+      width: 28px; height: 28px;
+      background: #f0f2f5;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #4e5969;
+      flex-shrink: 0;
+    }
+    .cam-list-item.selected .l-icon { background: var(--primary); color: #fff; }
+    .cam-list-item.fault .l-icon { background: #ffece8; color: #f53f3f; }
+    .cam-list-item .l-text { flex: 1; min-width: 0; }
+    .cam-list-item .l-text .n { font-size: 14px; color: #1d2129; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cam-list-item .l-text .m { font-size: 12px; color: #86909c; margin-top: 2px; }
+    .cam-list-item .l-tag { font-size: 10px; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; }
+    .cam-list-item .l-tag.nearest { background: var(--primary); color: #fff; }
+    .cam-list-item .l-tag.fault { background: #ffece8; color: #f53f3f; }
+    .cam-list-item .l-tag.dbl { background: rgba(1,120,236,0.1); color: var(--primary); font-size: 11px; }
+    .cam-empty {
+      padding: 40px 20px; text-align: center; color: #86909c; font-size: 13px;
+    }
+
+    /* Camera info popup (small floating card on map) */
+    .cam-info-pop {
+      position: fixed;
+      width: 280px;
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      z-index: 3000;
+      pointer-events: auto;
+      animation: fadeIn 0.15s;
+    }
+    .cam-info-pop .ip-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0f2f5;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cam-info-pop .ip-header .title {
+      font-weight: 600; font-size: 14px; color: #1d2129;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .cam-info-pop .ip-header .title .live {
+      background: #f53f3f;
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-weight: normal;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .cam-info-pop .ip-header .title .live::before {
+      content: ''; width: 4px; height: 4px; background: #fff; border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    .cam-info-pop .ip-body {
+      padding: 12px 14px;
+      font-size: 13px;
+    }
+    .cam-info-pop .ip-body .row {
+      display: flex; padding: 4px 0;
+      border-bottom: 1px dashed #f0f2f5;
+    }
+    .cam-info-pop .ip-body .row:last-child { border-bottom: none; }
+    .cam-info-pop .ip-body .label {
+      color: #86909c;
+      width: 70px;
+      flex-shrink: 0;
+    }
+    .cam-info-pop .ip-body .val { color: #1d2129; flex: 1; }
+    .cam-info-pop .ip-actions {
+      padding: 10px 14px;
+      border-top: 1px solid #f0f2f5;
+      display: flex; gap: 8px;
+    }
+    .cam-info-pop .ip-actions .btn {
+      flex: 1;
+      height: 28px;
+      font-size: 13px;
+    }
+
+    /* ============ Drawer ============ */
+    .drawer-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 1001;
+    }
+    .drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 780px; max-width: 95vw;
+      background: #fff;
+      border-radius: 8px 0 0 8px;
+      box-shadow: -8px 0 24px rgba(0,0,0,0.15);
+      z-index: 1002;
+      display: flex; flex-direction: column;
+      animation: slideIn 0.25s;
+      overflow: hidden;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .drawer .d-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 16px; font-weight: 600;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .drawer .d-header .h-left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .drawer .d-header .h-left .live {
+      background: #f53f3f; color: #fff;
+      font-size: 10px; padding: 2px 6px;
+      border-radius: 3px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .drawer .d-header .h-left .live::before {
+      content: ''; width: 4px; height: 4px; background: #fff; border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    .drawer .d-header .close { cursor: pointer; color: #86909c; font-size: 22px; padding: 4px 8px; }
+    .drawer .d-body { padding: 16px; flex: 1; overflow-y: auto; }
+    .drawer .d-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f2f5;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    /* Live camera view */
+    .live-view {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      aspect-ratio: 16 / 9;
+    }
+    .live-view img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .live-view .lv-overlay {
+      position: absolute; top: 12px; left: 12px;
+      display: flex; gap: 6px;
+    }
+    .live-view .lv-overlay .badge {
+      background: rgba(0,0,0,0.5); color: #fff;
+      font-size: 12px; padding: 2px 8px; border-radius: 3px;
+    }
+    .live-view .lv-overlay .badge.live { background: rgba(245,63,63,0.85); }
+    .live-view .lv-overlay .badge.live::before {
+      content: ''; display: inline-block; width: 6px; height: 6px;
+      background: #fff; border-radius: 50%; margin-right: 4px;
+      animation: pulse 1.5s infinite;
+    }
+    .live-view .lv-info {
+      position: absolute; bottom: 12px; left: 12px; right: 12px;
+      background: rgba(0,0,0,0.5); color: #fff;
+      padding: 8px 12px; border-radius: 4px;
+      font-size: 12px;
+      display: flex; gap: 16px;
+    }
+    .live-view .lv-info span { color: rgba(255,255,255,0.7); margin-right: 4px; }
+    .live-view .fault-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px;
+    }
+    .live-view .fault-overlay .icon { font-size: 48px; color: #f53f3f; }
+    .live-view .fault-overlay .text { font-size: 14px; color: rgba(255,255,255,0.85); }
+
+    .map-tip {
+      background: #fffbe6; border: 1px solid #ffe58f;
+      padding: 8px 12px; border-radius: 4px;
+      font-size: 13px; color: #ad6800;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .map-container {
+      position: relative;
+      width: 100%;
+      border: 1px solid #e5e6eb;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: crosshair;
+      background: #f5f6f9;
+    }
+    .map-container .map-image {
+      display: block;
+      width: 100%; height: auto;
+      user-select: none;
+    }
+    .map-container .map-marker {
+      position: absolute;
+      width: 32px; height: 32px;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .map-coord-display {
+      margin-top: 12px; padding: 12px 16px;
+      background: #f5f6f9;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 14px;
+    }
+    .map-coord-display .coord-text strong { color: var(--primary); margin-left: 4px; font-family: monospace; }
+
+    /* ============ Confirm Modal ============ */
+    .confirm-content { display: flex; align-items: flex-start; padding: 4px 0; }
+    .confirm-content .text { flex: 1; line-height: 1.6; }
+    .confirm-content .text .title { font-size: 15px; font-weight: 500; color: #1d2129; margin-bottom: 4px; }
+    .confirm-content .text .desc { font-size: 13px; color: #4e5969; }
+    .confirm-content .text .warning {
+      font-size: 13px; margin-top: 8px;
+      background: var(--primary-1);
+      padding: 6px 10px; border-radius: 4px;
+      color: var(--primary);
+    }
+    .confirm-content .text .warning.danger { background: #fff1f0; color: #f53f3f; }
+
+    /* ============ Toast ============ */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%; transform: translateX(-50%);
+      background: #fff;
+      border: 1px solid #e5e6eb;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      border-radius: 4px;
+      padding: 10px 16px;
+      font-size: 14px;
+      z-index: 2000;
+      display: flex; align-items: center; gap: 8px;
+      animation: toastIn 0.2s;
+      min-width: 200px;
+    }
+    .toast.success { border-left: 4px solid #00b42a; }
+    .toast.success .ic { color: #00b42a; }
+    .toast.error { border-left: 4px solid #f53f3f; }
+    .toast.error .ic { color: #f53f3f; }
+    .toast.info { border-left: 4px solid var(--primary); }
+    .toast.info .ic { color: var(--primary); }
+    .toast .ic { font-size: 16px; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, -10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .tooltip {
+      position: fixed;
+      background: #1d2129;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 3000;
+      pointer-events: none;
+      max-width: 360px;
+      line-height: 1.5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #1d2129;
+    }
+
+    /* ============ Toolbar ============ */
+    .table-toolbar {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .tab-pane-anim { animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Status tag for camera check (analysis state icons) */
+    .anal-ic { display: inline-block; width: 10px; height: 10px; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c9cdd4; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #86909c; }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+
+<!-- ============ Header ============ -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon"><icon name="settings" /></div>
+    <span>中科炼化AI智慧安全监控系统</span>
+  </div>
+  <div class="header-right">
+    <span class="header-time">{{ currentTime }}</span>
+    <div class="header-divider"></div>
+    <div class="user-info">
+      <div class="avatar"><icon name="user" /></div>
+      <span>管理员 / Sign out</span>
+    </div>
+  </div>
+</header>
+
+<main class="app-body">
+  <div class="tabs-bar">
+    <div v-for="t in tabList" :key="t.key" :class="['tab', { active: activeTab === t.key }]" @click="switchTab(t.key)">{{ t.label }}</div>
+  </div>
+
+  <div v-if="activeTab !== 'job'" class="empty-container tab-pane-anim">
+    <div class="empty-icon"><icon name="layers" style="font-size: 64px;" /></div>
+    <div class="empty-text">该模块正在建设中，敬请期待</div>
+    <button class="btn primary" @click="switchTab('job')">前往作业监管</button>
+  </div>
+
+  <!-- ============ 作业监管 ============ -->
+  <div v-if="activeTab === 'job'" class="tab-pane-anim">
+
+    <!-- 配置筛选 -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">配置筛选</span></div>
+      <div class="card-body">
+        <div class="filter-form">
+          <div>
+            <label class="form-label">模糊搜索</label>
+            <input class="ipt" v-model="filters.search" placeholder="请输入作业编号/作业内容">
+          </div>
+          <div>
+            <label class="form-label">所属组织</label>
+            <multi-select v-model="filters.orgs" :options="orgOptions" placeholder="全部" @change="onFilterChange('orgs')" />
+          </div>
+          <div>
+            <label class="form-label">所属区域</label>
+            <multi-select v-model="filters.areas" :options="areaOptions" placeholder="全部" @change="onFilterChange('areas')" />
+          </div>
+          <div>
+            <label class="form-label">所属装置</label>
+            <multi-select v-model="filters.devices" :options="deviceOptions" placeholder="全部" @change="onFilterChange('devices')" />
+          </div>
+          <div>
+            <label class="form-label">作业类型</label>
+            <multi-select v-model="filters.jobTypes" :options="jobTypeOptions" placeholder="全部" @change="onFilterChange('jobTypes')" />
+          </div>
+          <div>
+            <label class="form-label">开始时间</label>
+            <range-picker v-model="filters.timeRange" />
+          </div>
+          <div>
+            <label class="form-label">分析启停</label>
+            <simple-select v-model="filters.analysisOn" :options="analysisOnOptions" />
+          </div>
+          <div class="filter-actions">
+            <button class="btn" @click="resetFilters" title="重置所有筛选条件"><icon name="refresh" />重置</button>
+            <button class="btn primary" @click="onSearch" title="按当前筛选条件查询"><icon name="search" />查询</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">作业任务列表</span>
+        <div class="table-toolbar" style="display: flex; align-items: center; gap: 8px;">
+          <button class="btn primary" @click="handleAdd" style="margin-right: 4px;" title="新增作业任务">
+            <icon name="plus" />新增
+          </button>
+          <span style="flex: 1;"></span>
+          <button class="btn" @click="handleBatchDelete" :disabled="!selectedRowKeys.length" title="批量删除已勾选任务">
+            <icon name="trash" />批量删除
+          </button>
+          <button class="btn" @click="handleExport" title="导出已勾选任务为 CSV">
+            <icon name="upload" />导出
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:40px;">
+                <span :class="['checkbox-cell', { checked: selectedRowKeys.length === filteredData.length && filteredData.length > 0, indeterminate: selectedRowKeys.length > 0 && selectedRowKeys.length < filteredData.length }]" @click="toggleAll"></span>
+              </th>
+              <th>作业票ID</th>
+              <th>所属装置</th>
+              <th>作业类型</th>
+              <th>检测内容</th>
+              <th>作业状态</th>
+              <th>开始时间</th>
+              <th>结束时间</th>
+              <th>分析启停</th>
+              <th>分析状态</th>
+              <th>作业票状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in pagedData" :key="row.code">
+              <td>
+                <span :class="['checkbox-cell', { checked: selectedRowKeys.includes(row.code) }]" @click="toggleRow(row.code)"></span>
+              </td>
+              <td>{{ row.code }}</td>
+              <td>{{ row.device }}</td>
+              <td>{{ row.jobType }}</td>
+              <td>
+                <span class="content-cell" @mouseenter="showTip($event, row.fullContent)" @mouseleave="hideTip">{{ row.content }}</span>
+              </td>
+              <td>
+                <span :class="['status-tag', statusToClass(row.status)]">
+                  <span class="dot"></span>{{ row.status }}
+                </span>
+              </td>
+              <td>{{ row.startTime }}</td>
+              <td>{{ row.endTime }}</td>
+              <td>
+                <span :class="['switch', { on: row.analysisOn, disabled: !row.cameraId }]"
+                      @click="handleAnalysisToggle(row, !row.analysisOn)">
+                  <span class="knob"></span>
+                </span>
+              </td>
+              <td>
+                <span :class="['analysis-tag', analysisStatusToClass(row)]">
+                  <span class="dot"></span>{{ getAnalysisStatusText(row) }}
+                </span>
+              </td>
+              <td>
+                <span :class="['ticket-status-tag', ticketValidityOf(row) === '有效' ? 'valid' : 'invalid']">
+                  <span class="dot"></span>{{ ticketValidityOf(row) }}
+                </span>
+              </td>
+              <td>
+                <a class="link" @click="handleEdit(row)"><icon name="edit" />编辑</a>
+                <a class="link danger" style="margin-left:8px;" @click="handleDelete(row)"><icon name="trash" />删除</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="pg-info">共 {{ filteredData.length }} 条 · 第 {{ pagination.current }} / {{ totalPages }} 页</div>
+        <div class="pg-controls">
+          <select v-model.number="pagination.pageSize" @change="onPageSizeChange" class="pg-size">
+            <option v-for="n in pagination.pageSizeOptions" :key="n" :value="n">{{ n }} 条/页</option>
+          </select>
+          <button class="pg-btn" :disabled="pagination.current === 1" @click="pagination.current = 1" title="首页"><icon name="chevrons-left" /></button>
+          <button class="pg-btn" :disabled="pagination.current === 1" @click="pagination.current--" title="上一页"><icon name="chevron-left" /></button>
+          <button v-for="p in pageNumbers" :key="p" :class="['pg-btn', { active: p === pagination.current }]" @click="pagination.current = p">{{ p }}</button>
+          <button class="pg-btn" :disabled="pagination.current === totalPages" @click="pagination.current++" title="下一页"><icon name="chevron-right" /></button>
+          <button class="pg-btn" :disabled="pagination.current === totalPages" @click="pagination.current = totalPages" title="末页"><icon name="chevrons-right" /></button>
+          <span class="pg-jumper">前往<input :value="pagination.current" @change="goToPage($event.target.value)" />页</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ Edit Modal ============ -->
+<div v-if="showEditModal" class="modal-mask" @click.self="closeEditModal">
+  <div class="modal" @click.stop>
+    <div class="m-header">
+        <span>{{ isAddMode ? "新增作业任务" : "编辑作业任务" }}</span>
+      <span class="close" @click="closeEditModal"><icon name="x" /></span>
+    </div>
+    <div class="m-body">
+      <div class="steps">
+        <div :class="['step', { done: editStep > 1, active: editStep === 1 }]">
+          <div class="step-num"><icon v-if="editStep > 1" name="check" />{{ editStep > 1 ? '' : 1 }}</div>
+          <div class="step-info">
+            <div class="step-title">基础配置</div>
+            <div class="step-desc">填写作业基本信息</div>
+          </div>
+        </div>
+        <div :class="['step-line', { done: editStep > 1 }]"></div>
+        <div :class="['step', { active: editStep === 2 }]">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <div class="step-title">关联摄像头</div>
+            <div class="step-desc">绑定现场监控设备</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div v-show="editStep === 1">
+        <div class="form-grid">
+          <div class="form-row">
+            <label>作业单位<span class="req">*</span></label>
+            <input class="ipt" v-model="form.unit" placeholder="请输入作业单位">
+          </div>
+          <div class="form-row">
+            <label>部门<span class="req">*</span></label>
+            <simple-select v-model="form.dept" :options="orgOptionsForSelect" placeholder="请选择部门" />
+          </div>
+          <div class="form-row">
+            <label>区域<span class="req">*</span></label>
+            <simple-select v-model="form.area" :options="areaOptionsForSelect" placeholder="请选择区域" />
+          </div>
+          <div class="form-row">
+            <label>装置<span class="req">*</span></label>
+            <simple-select v-model="form.device" :options="deviceOptionsForSelect" placeholder="请选择装置" />
+          </div>
+          <div class="form-row">
+            <label>作业票ID<span class="req">*</span></label>
+            <input class="ipt" v-model="form.ticketNo" placeholder="请输入作业票号">
+          </div>
+          <div class="form-row">
+            <label>作业类型<span class="req">*</span></label>
+            <simple-select v-model="form.jobType" :options="jobTypeOptionsForSelect" placeholder="请选择作业类型" />
+          </div>
+          <div class="form-row">
+            <label>作业等级<span class="req">*</span></label>
+            <div class="radio-group">
+              <div v-for="lv in ['一级','二级','三级']" :key="lv" :class="['radio', { on: form.level === lv }]" @click="form.level = lv">
+                <span class="r"></span>{{ lv }}
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>JSA分析结果</label>
+            <input class="ipt" v-model="form.jsaResult" placeholder="请输入JSA分析结果">
+          </div>
+          <div class="form-row form-full">
+            <label>安全管控措施</label>
+            <textarea class="ipt ipt-tall" v-model="form.safetyMeasures" placeholder="请输入安全管控措施"></textarea>
+          </div>
+          <div class="form-row">
+            <label>施工单位<span class="req">*</span></label>
+            <input class="ipt" v-model="form.contractor" placeholder="请输入施工单位">
+          </div>
+          <div class="form-row">
+            <label>作业票状态<span class="req">*</span></label>
+            <simple-select v-model="form.approveStatus" :options="approveOptions" placeholder="请选择作业票状态" />
+          </div>
+          <div class="form-row">
+            <label>开始时间<span class="req">*</span></label>
+            <date-picker v-model="form.startTime" placeholder="请选择开始时间" />
+          </div>
+          <div class="form-row">
+            <label>结束时间<span class="req">*</span></label>
+            <date-picker v-model="form.endTime" placeholder="请选择结束时间" />
+          </div>
+          <div class="form-row form-full">
+            <label>经纬坐标<span class="req">*</span></label>
+            <div class="coord-row">
+              <input class="ipt" v-model="form.coordText" placeholder="请输入或选择经纬坐标" readonly>
+              <button class="btn primary" @click="openMapDrawer"><icon name="map-pin" />地图选点</button>
+              <button class="btn" @click="autoFillCoord"><icon name="refresh" />自动带入</button>
+            </div>
+          </div>
+          <div class="form-row form-full">
+            <label>作业部位及内容<span class="req">*</span></label>
+            <textarea class="ipt ipt-tall" v-model="form.location" placeholder="请描述作业部位及具体作业内容"></textarea>
+          </div>
+          <div class="form-row form-full">
+            <label>作业区域描述</label>
+            <textarea class="ipt ipt-tall" v-model="form.areaDesc" placeholder="请描述作业区域周围环境、风险源等"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: 关联摄像头 (含地图 + 列表) -->
+      <div v-show="editStep === 2">
+        <div class="step2-layout">
+          <!-- Map with camera pins and job pin -->
+          <div class="cam-map-wrap">
+            <img src="plant-map.png" class="map-img" id="camMapImg">
+            <!-- 作业坐标点 -->
+            <div v-if="form.coord" class="job-pin" :style="{ left: form.coord.x + 'px', top: form.coord.y + 'px' }">
+              <svg viewBox="0 0 24 24" fill="rgb(255, 87, 34)" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
+            <!-- 摄像头 pins -->
+            <div v-for="cam in filteredCameras" :key="cam.id"
+                 :class="['cam-pin', { selected: isCamSelected(cam), nearest: cam.nearest, fault: cam.fault }]"
+                 :style="camPosStyle(cam)"
+                 @click.stop="onCamPinClick($event, cam)">
+              <div class="cam-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path v-if="cam.fault" d="m22 8-9 5-9-5V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><line v-if="cam.fault" x1="2" y1="2" x2="22" y2="22"/>
+                  <template v-else>
+                    <path d="m22 8-9 5-9-5V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>
+                    <path d="M22 16v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/>
+                  </template>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar: 搜索 + 列表 -->
+          <div class="cam-sidebar">
+            <div class="cam-search">
+              <span class="search-icon"><icon name="search" /></span>
+              <input v-model="camSearch" placeholder="搜索设备编号/名称/通道" />
+            </div>
+            <div class="cam-list">
+              <div v-if="filteredCameras.length === 0" class="cam-empty">
+                <icon name="search" style="font-size: 24px; opacity: 0.5;" /><br>未找到匹配的摄像头
+              </div>
+              <div v-for="cam in filteredCameras" :key="cam.id"
+                   :class="['cam-list-item', { selected: isCamSelected(cam), fault: cam.fault }]"
+                   @click="onCamListClick(cam)"
+                   @dblclick="openLiveDrawer(cam)">
+                <div class="l-icon">
+                  <icon :name="cam.fault ? 'video-off' : 'video'" />
+                </div>
+                <div class="l-text">
+                  <div class="n">{{ cam.name }}</div>
+                  <div class="m">{{ cam.code }} · {{ cam.distance }}米</div>
+                </div>
+                <span v-if="cam.nearest" class="l-tag nearest">最近</span>
+                <span v-if="cam.fault" class="l-tag fault">故障</span>
+                <span v-if="!cam.fault && !cam.nearest" class="l-tag dbl">双击预览</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="m-footer">
+      <template v-if="editStep === 1">
+        <button class="btn" @click="closeEditModal">取消</button>
+        <button class="btn primary" @click="goToStep2">下一步</button>
+      </template>
+      <template v-else>
+        <button class="btn" @click="editStep = 1">上一步</button>
+        <button class="btn" @click="closeEditModal">取消</button>
+        <button class="btn primary" @click="saveTask">保存</button>
+      </template>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Map Drawer (for coord selection) ============ -->
+<div v-if="showMapDrawer" class="drawer-mask" @click="showMapDrawer = false"></div>
+<div v-if="showMapDrawer" class="drawer" style="width: 780px;">
+  <div class="d-header">
+    <span>选择坐标点</span>
+    <span class="close" @click="showMapDrawer = false"><icon name="x" /></span>
+  </div>
+  <div class="d-body">
+    <div class="map-tip"><icon name="info-circle" />点击地图任意位置即可选择坐标点，所选位置将自动转换为经纬度坐标</div>
+    <div class="map-container" @click="handleMapClick">
+      <img src="plant-map.png" class="map-image">
+      <div v-if="form.coord" class="map-marker" :style="{ left: form.coord.x + 'px', top: form.coord.y + 'px' }">
+        <svg viewBox="0 0 24 24" fill="rgb(1, 120, 236)">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="map-coord-display">
+      <div>当前坐标：<span class="coord-text"><strong>{{ form.coordText || '未选择' }}</strong></span></div>
+      <div>
+        <button class="btn sm" @click="clearCoord" v-if="form.coord">清除</button>
+        <button class="btn primary sm" @click="showMapDrawer = false" style="margin-left:8px;">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Camera Info Popup (浮动) ============ -->
+<div v-if="camInfoPop.visible" class="cam-info-pop" :style="{ left: camInfoPop.x + 'px', top: camInfoPop.y + 'px' }" @click.stop>
+  <div class="ip-header">
+    <div class="title">
+      <icon name="video" />
+      {{ camInfoPop.cam.name }}
+      <span class="live">LIVE</span>
+    </div>
+    <span class="close" @click="camInfoPop.visible = false" style="cursor:pointer; color:#86909c; font-size:16px;"><icon name="x" /></span>
+  </div>
+  <div class="ip-body">
+    <div class="row"><span class="label">设备编号</span><span class="val">{{ camInfoPop.cam.code }}</span></div>
+    <div class="row"><span class="label">设备名称</span><span class="val">{{ camInfoPop.cam.name }}</span></div>
+    <div class="row"><span class="label">设备通道</span><span class="val">{{ camInfoPop.cam.code }} · CH{{ camInfoPop.cam.channel || '01' }}</span></div>
+    <div class="row"><span class="label">所属组织</span><span class="val">{{ camInfoPop.cam.org || '炼油一部' }}</span></div>
+    <div class="row"><span class="label">备注</span><span class="val">{{ camInfoPop.cam.note || '现场作业区域监控点位' }}</span></div>
+  </div>
+  <div class="ip-actions">
+    <button class="btn" @click="camInfoPop.visible = false"><icon name="x" />关闭</button>
+    <button class="btn primary" @click="openLiveDrawer(camInfoPop.cam)"><icon name="eye" />画面详情</button>
+  </div>
+</div>
+
+<!-- ============ Live Camera Drawer ============ -->
+<div v-if="showLiveDrawer" class="drawer-mask" @click="showLiveDrawer = false"></div>
+<div v-if="showLiveDrawer" class="drawer" style="width: 720px;">
+  <div class="d-header">
+    <div class="h-left">
+      <span style="display:inline-flex; align-items:center;"><icon name="video" /></span>
+      <span v-if="liveCam">{{ liveCam.name }}</span>
+      <span v-if="!liveCam">实时画面</span>
+      <span class="live">实时</span>
+    </div>
+    <span class="close" @click="showLiveDrawer = false"><icon name="x" /></span>
+  </div>
+  <div class="d-toolbar">
+    <div style="font-size:13px; color:#86909c;">
+      <icon name="info-circle" style="vertical-align:-2px;" />
+      设备编号：{{ liveCam ? liveCam.code : '-' }} · 距离作业点 {{ liveCam ? liveCam.distance : 0 }}米
+    </div>
+    <div>
+      <button class="btn sm" @click="showLiveDrawer = false"><icon name="x" />关闭</button>
+    </div>
+  </div>
+  <div class="d-body">
+    <div class="live-view">
+      <img src="cam-preview.svg" alt="实时画面">
+      <div v-if="liveCam && liveCam.fault" class="fault-overlay">
+        <div class="icon"><icon name="video-off" style="font-size:48px;" /></div>
+        <div class="text">摄像头离线，无法获取实时画面</div>
+        <div class="text" style="font-size:12px; color:rgba(255,255,255,0.5);">请检查设备连接或联系运维人员</div>
+      </div>
+      <div class="lv-overlay">
+        <span v-if="liveCam && !liveCam.fault" class="badge live">LIVE</span>
+        <span v-if="liveCam && !liveCam.fault" class="badge">{{ liveCam.code }}</span>
+      </div>
+      <div class="lv-info">
+        <div><span>坐标：</span>{{ form.coordText }}</div>
+        <div><span>关联任务：</span>{{ editing ? editing.code : '-' }}</div>
+        <div><span>帧率：</span>{{ liveCam && liveCam.fault ? '--' : '25 FPS' }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Confirm Modal (single, for analysis switch) ============ -->
+<div v-if="confirmModal.visible" class="modal-mask" @click.self="confirmModal.visible = false">
+  <div class="modal" :style="{ width: confirmModal.width || '440px' }" @click.stop>
+    <div class="m-header">
+      <span>{{ confirmModal.title }}</span>
+      <span class="close" @click="confirmModal.visible = false"><icon name="x" /></span>
+    </div>
+    <div class="m-body" style="padding: 20px 24px;">
+      <div class="confirm-content">
+        <div class="text">
+          <div class="title">{{ confirmModal.title }}</div>
+          <div class="desc">{{ confirmModal.desc }}</div>
+          <div v-if="confirmModal.warning" :class="['warning', confirmModal.danger ? 'danger' : '']">{{ confirmModal.warning }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="m-footer">
+      <button class="btn" @click="confirmModal.onCancel">{{ confirmModal.cancelText || '取消' }}</button>
+      <button :class="['btn', confirmModal.danger ? 'danger' : 'primary']" @click="confirmModal.onConfirm">{{ confirmModal.confirmText || '确定' }}</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Delete Confirm ============ -->
+<div v-if="deleteModal.visible" class="modal-mask" @click.self="deleteModal.visible = false">
+  <div class="modal" style="width: 400px;" @click.stop>
+    <div class="m-header">
+      <span>{{ deleteModal.title }}</span>
+      <span class="close" @click="deleteModal.visible = false"><icon name="x" /></span>
+    </div>
+    <div class="m-body" style="padding: 20px 24px;">
+      <div class="confirm-content">
+        <div class="text">
+          <div class="title">{{ deleteModal.title }}</div>
+          <div class="desc">{{ deleteModal.desc }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="m-footer">
+      <button class="btn" @click="deleteModal.visible = false">取消</button>
+      <button class="btn danger" @click="deleteModal.onConfirm">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Toasts ============ -->
+<div v-for="t in toasts" :key="t.id" :class="['toast', t.type]">
+  <span class="ic">
+    <icon :name="t.type === 'success' ? 'check-circle' : (t.type === 'error' ? 'x-circle' : 'info-circle')" />
+  </span>
+  <span>{{ t.message }}</span>
+</div>
+
+<!-- ============ Tooltip ============ -->
+<div v-if="tooltip.visible" class="tooltip" :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }">{{ tooltip.text }}</div>
+
+<!-- ============ Select overflow tooltip ============ -->
+<div v-if="selectOverflow.visible" class="select-tooltip" :style="{ left: selectOverflow.x + 'px', top: selectOverflow.y + 'px' }">
+  <div v-for="(item, i) in selectOverflow.items" :key="i" class="tt-row">
+    <span class="tag">{{ item.label }}</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+  // 全局错误捕获：避免 Vue 初始化失败时用户看到一片空白
+  window.addEventListener('error', function(e) {
+    console.error('[Global Error]', e.message, e.filename, e.lineno);
+  });
+</script>
+<script src="./vue.min.js"></script>
+<script>
+  Vue.config.productionTip = false;
+  Vue.config.devtools = false;
+  Vue.config.errorHandler = function(err, vm, info) { console.warn('[Vue]', err && err.message, info); return false; };
+  Vue.config.warnHandler = function() {};
+
+  // ============ Icons ============
+  const ICONS = {
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+    edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11"/>',
+    'x-circle': '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    'info-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+    calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+    'map-pin': '<path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+    navigation: '<polygon points="3 11 22 4 13 21 11 13 3 11"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    video: '<path d="m22 8-9 5-9-5V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/><path d="M22 16v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/>',
+    'video-off': '<path d="M10.66 5H14a2 2 0 0 1 2 2v3.34l1 1L22 7v10"/><path d="M16 16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><line x1="1" y1="1" x2="23" y2="23"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+    'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
+    'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
+    'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
+    'chevrons-left': '<polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>',
+    'chevrons-right': '<polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>',
+    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
+    eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+    'help-circle': '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+  };
+
+  Vue.component('icon', {
+    props: ['name'],
+    computed: {
+      path() { return ICONS[this.name] || ''; }
+    },
+    template: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="path"></svg>'
+  });
+
+  // ============ Mock Data ============
+  const ORG_OPTIONS = [
+    { value: 'all', label: '全部' },
+    { value: 'ref1', label: '炼油一部' },
+    { value: 'ref2', label: '炼油二部' },
+    { value: 'ref3', label: '炼油三部' },
+    { value: 'che1', label: '化工一部' },
+    { value: 'che2', label: '化工二部' },
+    { value: 'che3', label: '化工三部' },
+    { value: 'cy', label: '储运部' },
+    { value: 'gy', label: '公用工程部' },
+    { value: 'hb', label: '安全环保部' },
+    { value: 'sp', label: '移动视频监控组' }
+  ];
+  const AREA_OPTIONS = [
+    { value: 'all', label: '全部' },
+    { value: 'A1', label: 'A1区' }, { value: 'A2', label: 'A2区' },
+    { value: 'B2', label: 'B2区' }, { value: 'B3', label: 'B3区' },
+    { value: 'C1', label: 'C1区' }, { value: 'C2', label: 'C2区' },
+    { value: 'D1', label: 'D1区' }
+  ];
+  const DEVICE_OPTIONS = [
+    { value: 'all', label: '全部' },
+    { value: 'D1', label: '装置1' }, { value: 'D2', label: '装置2' },
+    { value: 'D3', label: '装置3' }, { value: 'D4', label: '装置4' },
+    { value: 'D5', label: '装置5' }
+  ];
+  const JOB_TYPE_OPTIONS = [
+    { value: 'all', label: '全部' },
+    { value: '受限空间', label: '受限空间作业' },
+    { value: '一般作业', label: '一般作业' },
+    { value: '高处作业', label: '高处作业' },
+    { value: '拆卸', label: '拆卸/设备打开类作业' },
+    { value: '盲板抽堵', label: '盲板抽堵作业' },
+    { value: '吊装', label: '吊装作业' },
+    { value: '动火', label: '动火作业' },
+    { value: '临时用电', label: '临时用电作业' },
+    { value: '动土', label: '动土作业' },
+    { value: '断路', label: '断路作业' }
+  ];
+  const DETECTION_TYPES = ['安全帽', '工服', '吊臂下站人', '指挥司索人员', '监护人', '安全带', '灭火器', '人员超限'];
+  const JOB_STATUSES = ['未开始', '进行中', '已结束', '已取消'];
+  const APPROVE_OPTIONS = [
+  { value: '已开票', label: '已开票' },
+  { value: '已签发', label: '已签发' },
+  { value: '作业中', label: '作业中' },
+  { value: '作业暂停', label: '作业暂停' },
+  { value: '完成', label: '完成' },
+  { value: '签收', label: '签收' },
+  { value: '作废', label: '作废' },
+  { value: '撤销', label: '撤销' }
+];
+  const APPROVE_STATUS_KEYS = ['待审批', '已审批', '已驳回'];
+  const ANALYSIS_ON_OPTIONS = [
+    { value: 'all', label: '全部' },
+    { value: true, label: '是' },
+    { value: false, label: '否' }
+  ];
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function fmtDate(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+           pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+
+  function generateMockData(count) {
+    const data = [];
+    for (let i = 0; i < count; i++) {
+      const idx = i + 1;
+      const device = DEVICE_OPTIONS[1 + (i % 5)].label;
+      const jobType = JOB_TYPE_OPTIONS[1 + (i % 10)].label;
+      const status = JOB_STATUSES[i % 4];
+      const approveStatus = APPROVE_STATUS_KEYS[i % 3];
+      const detectionCount = 2 + (i % 4);
+      const shuffled = DETECTION_TYPES.slice().sort(() => 0.5 - Math.random()).slice(0, detectionCount);
+      const content = shuffled.join('、');
+      const truncated = content.length > 20 ? content.slice(0, 20) + '…' : content;
+      const startDate = new Date(2026, 8, 1 + (i % 20), 8 + (i % 10), (i * 7) % 60, 0);
+      const endDate = new Date(startDate.getTime() + (2 + i % 6) * 3600 * 1000);
+      // 30% 概率未关联摄像头
+      const hasCam = i % 10 !== 3 && i % 7 !== 2;
+      const camIdx = hasCam ? (i % 6) : -1;
+      data.push({
+        code: 'YK2026' + String(900 + idx).padStart(4, '0'),
+        device, jobType,
+        content: truncated,
+        fullContent: content,
+        status,
+        approveStatus,
+        startTime: fmtDate(startDate),
+        endTime: fmtDate(endDate),
+        analysisOn: false, // 默认关闭（摄像头有的话后续开启）
+        cameraId: hasCam ? ('C00' + (camIdx + 1)) : null
+      });
+    }
+    return data;
+  }
+
+  // Cameras with positions on the plant map (percentages of image dimensions)
+  const CAMERAS = [
+    { id: 'C001', code: 'CAM-DL-A001', channel: '01', name: '动力锅炉单元-北门摄像头', location: '动力锅炉单元北侧', org: '炼油一部', note: '锅炉区域主出入口', distance: 28,  nearest: false, fault: false, pos: { x: 0.215, y: 0.32 } },
+    { id: 'C002', code: 'CAM-TR-A002', channel: '01', name: '天然气净化装置-中部球机', location: '天然气净化装置中央', org: '炼油一部', note: '净化装置核心区', distance: 45,  nearest: false, fault: false, pos: { x: 0.55, y: 0.35 } },
+    { id: 'C003', code: 'CAM-HJ-A003', channel: '01', name: '火炬单元-高空瞭望', location: '火炬单元顶层', org: '公用工程部', note: '高空瞭望点，火炬区全景', distance: 86,  nearest: false, fault: true,  pos: { x: 0.82, y: 0.30 } },
+    { id: 'C004', code: 'CAM-KF-A004', channel: '01', name: '空分空压单元-南侧枪机', location: '空分空压单元南侧', org: '炼油一部', note: '空分区南侧监控', distance: 62,  nearest: false, fault: false, pos: { x: 0.30, y: 0.55 } },
+    { id: 'C005', code: 'CAM-CY-A005', channel: '01', name: '除盐水站-门口摄像头', location: '除盐水站入口', org: '公用工程部', note: '除盐水站门口', distance: 110, nearest: false, fault: false, pos: { x: 0.36, y: 0.62 } },
+    { id: 'C006', code: 'CAM-XH-A006', channel: '02', name: '循环水冷却单元-高点监控', location: '循环水冷却单元上方', org: '公用工程部', note: '冷却塔高点监控', distance: 138, nearest: false, fault: false, pos: { x: 0.32, y: 0.78 } },
+    { id: 'C007', code: 'CAM-HG-A007', channel: '01', name: '集气单元-工艺区球机', location: '集气单元工艺区', org: '储运部', note: '集气单元工艺区', distance: 92, nearest: false, fault: false, pos: { x: 0.85, y: 0.55 } },
+    { id: 'C008', code: 'CAM-LS-A008', channel: '01', name: '液硫装卸单元-装车区', location: '液硫装卸单元', org: '储运部', note: '液硫装车区监控', distance: 134, nearest: false, fault: false, pos: { x: 0.46, y: 0.68 } }
+  ];
+
+  // ============ Reusable Mini-Components ============
+  // Multi-select dropdown - supports "all" toggle logic
+  Vue.component('multi-select', {
+    props: ['value', 'options', 'placeholder'],
+    data() {
+      return {
+        open: false,
+        isClosing: false,
+        allOptionValue: 'all',
+        tagOverflow: false
+      };
+    },
+    computed: {
+      hasAll() {
+        return this.value && this.value.length === 1 && this.value[0] === this.allOptionValue;
+      },
+      allNonAllValues() {
+        return (this.value || []).filter(v => v !== this.allOptionValue);
+      }
+    },
+    methods: {
+      toggle(v) {
+        let arr = (this.value || []).slice();
+        if (v === this.allOptionValue) {
+          // 点击"全部"：取消其它所有选择
+          arr = [this.allOptionValue];
+        } else {
+          // 点击其它选项：取消"全部"勾选
+          arr = arr.filter(x => x !== this.allOptionValue);
+          const idx = arr.indexOf(v);
+          if (idx >= 0) arr.splice(idx, 1);
+          else arr.push(v);
+        }
+        this.$emit('input', arr);
+        this.$emit('change', arr);
+      },
+      removeTag(v, e) {
+        e.stopPropagation();
+        const arr = (this.value || []).filter(x => x !== v);
+        this.$emit('input', arr);
+        this.$emit('change', arr);
+      },
+      getLabel(v) {
+        const opt = this.options.find(o => o.value === v);
+        return opt ? opt.label : v;
+      },
+      handleClickOutside(e) {
+        if (this.isClosing) return;
+        if (!this.$el.contains(e.target)) this.open = false;
+      },
+      showOverflowTip(e) {
+        if (this.allNonAllValues.length === 0) return;
+        const rect = e.target.getBoundingClientRect();
+        const items = this.allNonAllValues.map(v => ({ label: this.getLabel(v) }));
+        this.$root.$emit('show-select-overflow', {
+          visible: true,
+          x: rect.left,
+          y: rect.bottom + 4,
+          items
+        });
+      },
+      hideOverflowTip() {
+        this.$root.$emit('show-select-overflow', { visible: false });
+      },
+      getAllSelectedLabels() {
+        return this.allNonAllValues.map(v => this.getLabel(v));
+      }
+    },
+    mounted() {
+      document.addEventListener('click', this.handleClickOutside);
+    },
+    beforeDestroy() {
+      document.removeEventListener('click', this.handleClickOutside);
+    },
+    template: `
+      <div class="select-wrap">
+        <div :class="['select-trigger', { open }]" @click.stop="open = !open">
+          <template v-if="value && value.length === 0">
+            <span class="ph">{{ placeholder }}</span>
+          </template>
+          <template v-else-if="hasAll">
+            <span class="sel-tag">全部<span class="x" @click="removeTag(allOptionValue, $event)">×</span></span>
+          </template>
+          <template v-else>
+            <span v-for="v in allNonAllValues" :key="v" class="sel-tag" @mouseenter="showOverflowTip($event)" @mouseleave="hideOverflowTip">
+              {{ getLabel(v) }}<span class="x" @click="removeTag(v, $event)">×</span>
+            </span>
+          </template>
+        </div>
+        <div v-if="open" class="select-pop">
+          <div v-for="o in options" :key="o.value"
+               :class="['sel-opt', { sel: (value || []).indexOf(o.value) >= 0 }]"
+               @click="toggle(o.value)">
+            <span>{{ o.label }}</span>
+            <span class="check" v-if="(value || []).indexOf(o.value) >= 0"><icon name="check" /></span>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // Simple (single) select with exclusive dropdown
+  Vue.component('simple-select', {
+    props: ['value', 'options', 'placeholder'],
+    data() { return { open: false, isClosing: false }; },
+    methods: {
+      select(v) {
+        this.isClosing = true;
+        this.$emit('input', v);
+        this.open = false;
+        setTimeout(() => { this.isClosing = false; }, 100);
+      },
+      getLabel() {
+        if (this.value === '' || this.value === null || this.value === undefined) return null;
+        const opt = this.options.find(o => o.value === this.value);
+        return opt ? opt.label : this.value;
+      },
+      handleClickOutside(e) {
+        if (this.isClosing) return;
+        if (!this.$el.contains(e.target)) this.open = false;
+      }
+    },
+    mounted() { document.addEventListener('click', this.handleClickOutside); },
+    beforeDestroy() { document.removeEventListener('click', this.handleClickOutside); },
+    template: `
+      <div class="select-wrap">
+        <div :class="['select-trigger', { open }]" @click.stop="open = !open">
+          <span v-if="getLabel()">{{ getLabel() }}</span>
+          <span v-else class="ph">{{ placeholder || '请选择' }}</span>
+        </div>
+        <div v-if="open" class="select-pop">
+          <div v-for="o in options" :key="o.value" :class="['sel-opt', { sel: value === o.value }]" @click="select(o.value)">
+            <span>{{ o.label }}</span>
+            <span class="check" v-if="value === o.value"><icon name="check" /></span>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // Date picker (single date+time)
+  Vue.component('date-picker', {
+    props: ['value', 'placeholder'],
+    data() {
+      return {
+        open: false,
+        isClosing: false,
+        viewYear: new Date().getFullYear(),
+        viewMonth: new Date().getMonth(),
+        tempDate: null,
+        tempHour: 0, tempMin: 0, tempSec: 0,
+        inputValue: ''
+      };
+    },
+    watch: {
+      value: {
+        immediate: true,
+        handler(v) { this.inputValue = v || ''; }
+      }
+    },
+    methods: {
+      parse() {
+        if (!this.value) { this.tempDate = null; return; }
+        const d = new Date(this.value.replace(/-/g, '/'));
+        this.tempDate = d;
+        this.tempHour = d.getHours();
+        this.tempMin = d.getMinutes();
+        this.tempSec = d.getSeconds();
+      },
+      showCal() {
+        this.parse();
+        if (this.tempDate) {
+          this.viewYear = this.tempDate.getFullYear();
+          this.viewMonth = this.tempDate.getMonth();
+        }
+        this.open = true;
+      },
+      prevMonth() {
+        if (this.viewMonth === 0) { this.viewYear--; this.viewMonth = 11; }
+        else this.viewMonth--;
+      },
+      nextMonth() {
+        if (this.viewMonth === 11) { this.viewYear++; this.viewMonth = 0; }
+        else this.viewMonth++;
+      },
+      pickDate(d) {
+        this.tempDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), this.tempHour, this.tempMin, this.tempSec);
+      },
+      confirm() {
+        if (!this.tempDate) { this.open = false; return; }
+        const d = new Date(this.tempDate);
+        d.setHours(parseInt(this.tempHour, 10) || 0);
+        d.setMinutes(parseInt(this.tempMin, 10) || 0);
+        d.setSeconds(parseInt(this.tempSec, 10) || 0);
+        this.$emit('input', fmtDate(d));
+        this.isClosing = true;
+        this.open = false;
+        setTimeout(() => { this.isClosing = false; }, 100);
+      },
+      clearVal(e) {
+        e.stopPropagation();
+        this.$emit('input', '');
+      },
+      handleClickOutside(e) {
+        if (this.isClosing) return;
+        if (!this.$el.contains(e.target)) this.open = false;
+      },
+      getCalendar() {
+        const firstDay = new Date(this.viewYear, this.viewMonth, 1);
+        const lastDay = new Date(this.viewYear, this.viewMonth + 1, 0);
+        const startWeek = firstDay.getDay();
+        const days = [];
+        const prevLast = new Date(this.viewYear, this.viewMonth, 0).getDate();
+        for (let i = startWeek - 1; i >= 0; i--) {
+          days.push({ date: new Date(this.viewYear, this.viewMonth - 1, prevLast - i), dim: true });
+        }
+        for (let i = 1; i <= lastDay.getDate(); i++) {
+          days.push({ date: new Date(this.viewYear, this.viewMonth, i), dim: false });
+        }
+        while (days.length < 42) {
+          const last = days[days.length - 1].date;
+          days.push({ date: new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1), dim: true });
+        }
+        return days;
+      },
+      isSameDay(a, b) {
+        return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+      }
+    },
+    mounted() { document.addEventListener('click', this.handleClickOutside); },
+    beforeDestroy() { document.removeEventListener('click', this.handleClickOutside); },
+    template: `
+      <div class="select-wrap" style="position:relative;">
+        <div class="dt-trigger" @click.stop="showCal">
+          <span class="ic"><icon name="calendar" /></span>
+          <span v-if="inputValue" style="flex:1; font-variant-numeric: tabular-nums;">{{ inputValue }}</span>
+          <span v-else class="ph" style="flex:1;">{{ placeholder || '请选择日期时间' }}</span>
+          <span v-if="inputValue" style="cursor:pointer; opacity:0.5; margin-left:4px;" @click="clearVal"><icon name="x" /></span>
+        </div>
+        <div v-if="open" class="dt-pop" @click.stop style="width:280px;">
+          <div class="dt-head">
+            <button class="btn sm" @click="prevMonth"><icon name="chevron-left" /></button>
+            <span style="font-weight:500;">{{ viewYear }}年{{ viewMonth + 1 }}月</span>
+            <button class="btn sm" @click="nextMonth"><icon name="chevron-right" /></button>
+          </div>
+          <div class="dt-grid">
+            <div class="cell hd">日</div><div class="cell hd">一</div><div class="cell hd">二</div>
+            <div class="cell hd">三</div><div class="cell hd">四</div><div class="cell hd">五</div><div class="cell hd">六</div>
+            <div v-for="(d, i) in getCalendar()" :key="i"
+                 :class="['cell', { dim: d.dim, sel: isSameDay(d.date, tempDate) }]"
+                 @click="pickDate(d.date)">{{ d.date.getDate() }}</div>
+          </div>
+          <div class="dt-time">
+            <input type="number" min="0" max="23" v-model.number="tempHour" placeholder="时">:
+            <input type="number" min="0" max="59" v-model.number="tempMin" placeholder="分">:
+            <input type="number" min="0" max="59" v-model.number="tempSec" placeholder="秒">
+          </div>
+          <div class="dt-actions">
+            <button class="btn sm" @click="open = false">取消</button>
+            <button class="btn primary sm" @click="confirm">确定</button>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // Range picker - default end = today, start = today - 7 days
+  Vue.component('range-picker', {
+    props: ['value'],
+    data() {
+      const now = new Date();
+      const startDefault = new Date(now);
+      startDefault.setDate(now.getDate() - 7);
+      return {
+        open: false,
+        isClosing: false,
+        startDate: startDefault,
+        endDate: now,
+        startHour: 0, startMin: 0, startSec: 0,
+        endHour: 23, endMin: 59, endSec: 59,
+        viewYear: now.getFullYear(),
+        viewMonth: now.getMonth(),
+        picking: 'start',
+        rangeText: ''
+      };
+    },
+    watch: {
+      value: {
+        immediate: true,
+        handler(v) {
+          if (!v || !v.length || (!v[0] && !v[1])) {
+            // 默认范围：今天前7天 到 今天
+            const now = new Date();
+            const s = new Date(now); s.setDate(now.getDate() - 7); s.setHours(0,0,0,0);
+            const e = new Date(now); e.setHours(23,59,59,0);
+            this.startDate = s; this.endDate = e;
+            this.rangeText = fmtDate(s) + ' ~ ' + fmtDate(e);
+          } else {
+            if (v[0]) this.startDate = new Date(v[0].replace(/-/g, '/'));
+            if (v[1]) this.endDate = new Date(v[1].replace(/-/g, '/'));
+            this.rangeText = (v[0] || '') + ' ~ ' + (v[1] || '');
+          }
+          if (this.startDate) { this.startHour = this.startDate.getHours(); this.startMin = this.startDate.getMinutes(); this.startSec = this.startDate.getSeconds(); }
+          if (this.endDate) { this.endHour = this.endDate.getHours(); this.endMin = this.endDate.getMinutes(); this.endSec = this.endDate.getSeconds(); }
+        }
+      }
+    },
+    methods: {
+      showCal() {
+        this.open = true;
+        this.picking = 'start';
+      },
+      pickDate(d) {
+        if (this.picking === 'start') {
+          this.startDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), this.startHour, this.startMin, this.startSec);
+          if (!this.endDate || this.startDate > this.endDate) {
+            this.endDate = new Date(this.startDate);
+            this.endDate.setHours(23, 59, 59);
+            this.endHour = 23; this.endMin = 59; this.endSec = 59;
+          }
+          this.picking = 'end';
+        } else {
+          this.endDate = new Date(d.getFullYear(), d.getMonth(), d.getDate(), this.endHour, this.endMin, this.endSec);
+          this.picking = 'start';
+        }
+      },
+      inRange(d) {
+        if (!this.startDate || !this.endDate) return false;
+        const t = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        return t >= new Date(this.startDate.getFullYear(), this.startDate.getMonth(), this.startDate.getDate()).getTime()
+            && t <= new Date(this.endDate.getFullYear(), this.endDate.getMonth(), this.endDate.getDate()).getTime();
+      },
+      prevMonth() { if (this.viewMonth === 0) { this.viewYear--; this.viewMonth = 11; } else this.viewMonth--; },
+      nextMonth() { if (this.viewMonth === 11) { this.viewYear++; this.viewMonth = 0; } else this.viewMonth++; },
+      confirm() {
+        if (!this.startDate || !this.endDate) { this.open = false; return; }
+        const s = new Date(this.startDate); s.setHours(this.startHour, this.startMin, this.startSec);
+        const e = new Date(this.endDate); e.setHours(this.endHour, this.endMin, this.endSec);
+        const result = [fmtDate(s), fmtDate(e)];
+        this.$emit('input', result);
+        this.isClosing = true;
+        this.open = false;
+        setTimeout(() => { this.isClosing = false; }, 100);
+      },
+      formatDate(d) {
+        if (!d) return '';
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      },
+      setShortcut(days) {
+        const e = new Date(); e.setHours(23, 59, 59, 0);
+        const s = new Date(e); s.setDate(e.getDate() - days); s.setHours(0, 0, 0, 0);
+        this.startDate = s; this.endDate = e;
+        this.startHour = 0; this.startMin = 0; this.startSec = 0;
+        this.endHour = 23; this.endMin = 59; this.endSec = 59;
+      },
+      handleClickOutside(e) { if (this.isClosing) return; if (!this.$el.contains(e.target)) this.open = false; },
+      getCalendar() {
+        const firstDay = new Date(this.viewYear, this.viewMonth, 1);
+        const lastDay = new Date(this.viewYear, this.viewMonth + 1, 0);
+        const startWeek = firstDay.getDay();
+        const days = [];
+        const prevLast = new Date(this.viewYear, this.viewMonth, 0).getDate();
+        for (let i = startWeek - 1; i >= 0; i--) {
+          days.push({ date: new Date(this.viewYear, this.viewMonth - 1, prevLast - i), dim: true });
+        }
+        for (let i = 1; i <= lastDay.getDate(); i++) {
+          days.push({ date: new Date(this.viewYear, this.viewMonth, i), dim: false });
+        }
+        while (days.length < 42) {
+          const last = days[days.length - 1].date;
+          days.push({ date: new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1), dim: true });
+        }
+        return days;
+      },
+      isSameDay(a, b) { return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+    },
+    mounted() { document.addEventListener('click', this.handleClickOutside); },
+    beforeDestroy() { document.removeEventListener('click', this.handleClickOutside); },
+    template: `
+      <div class="select-wrap" style="position:relative;">
+        <div class="dt-trigger" @click.stop="showCal">
+          <span class="ic-abs"><icon name="calendar" /></span>
+          <span v-if="rangeText" style="flex:1; font-size:13px; font-variant-numeric: tabular-nums;">{{ rangeText }}</span>
+          <span v-else class="ph" style="flex:1;">请选择时间范围</span>
+        </div>
+        <div v-if="open" class="dt-pop" @click.stop style="width:560px; left:auto; right:0;">
+          <div style="display:flex; gap:16px; margin-bottom:12px;">
+            <div style="flex:1;">
+              <div style="font-size:12px; color:#86909c; margin-bottom:4px;">开始日期</div>
+              <input type="text" :value="formatDate(startDate)" readonly style="width:100%; height:28px; padding:0 8px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; background:#fafbfc;"/>
+              <div style="display:flex; gap:4px; margin-top:4px;">
+                <input type="number" min="0" max="23" v-model.number="startHour" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+                <span style="line-height:24px; color:#c9cdd4;">:</span>
+                <input type="number" min="0" max="59" v-model.number="startMin" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+                <span style="line-height:24px; color:#c9cdd4;">:</span>
+                <input type="number" min="0" max="59" v-model.number="startSec" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px; color:#86909c; margin-bottom:4px;">结束日期</div>
+              <input type="text" :value="formatDate(endDate)" readonly style="width:100%; height:28px; padding:0 8px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; background:#fafbfc;"/>
+              <div style="display:flex; gap:4px; margin-top:4px;">
+                <input type="number" min="0" max="23" v-model.number="endHour" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+                <span style="line-height:24px; color:#c9cdd4;">:</span>
+                <input type="number" min="0" max="59" v-model.number="endMin" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+                <span style="line-height:24px; color:#c9cdd4;">:</span>
+                <input type="number" min="0" max="59" v-model.number="endSec" style="flex:1; height:24px; padding:0 4px; border:1px solid #c9cdd4; border-radius:3px; font-size:12px; text-align:center;">
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="btn sm" @click="prevMonth"><icon name="chevron-left" /></button>
+              <span style="font-weight:500; font-size:13px;">{{ viewYear }}年{{ viewMonth + 1 }}月</span>
+              <button class="btn sm" @click="nextMonth"><icon name="chevron-right" /></button>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn sm" @click="setShortcut(7)">近7天</button>
+              <button class="btn sm" @click="setShortcut(30)">近30天</button>
+            </div>
+          </div>
+          <div class="dt-grid">
+            <div class="cell hd">日</div><div class="cell hd">一</div><div class="cell hd">二</div>
+            <div class="cell hd">三</div><div class="cell hd">四</div><div class="cell hd">五</div><div class="cell hd">六</div>
+            <div v-for="(d, i) in getCalendar()" :key="i"
+                 :class="['cell', { dim: d.dim, sel: isSameDay(d.date, startDate) || isSameDay(d.date, endDate), 'in-range': inRange(d.date) }]"
+                 @click="pickDate(d.date)">{{ d.date.getDate() }}</div>
+          </div>
+          <div class="dt-actions">
+            <button class="btn sm" @click="open = false">取消</button>
+            <button class="btn primary sm" @click="confirm">确定</button>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // ============ Root App ============
+  new Vue({
+    el: '#app',
+    data() {
+      const now = new Date();
+      const startDefault = new Date(now); startDefault.setDate(now.getDate() - 7); startDefault.setHours(0,0,0,0);
+      const endDefault = new Date(now); endDefault.setHours(23,59,59,0);
+      return {
+        activeTab: 'job',
+        currentTime: '',
+        tabList: [
+          { key: 'data', label: '数据中心' },
+          { key: 'warn', label: '监测预警' },
+          { key: 'job', label: '作业监管' },
+          { key: 'history', label: '历史查询' },
+          { key: 'sys', label: '系统管理' }
+        ],
+        filters: {
+          search: '',
+          orgs: ['all'],
+          areas: ['all'],
+          devices: ['all'],
+          jobTypes: ['all'],
+          timeRange: [fmtDate(startDefault), fmtDate(endDefault)],
+          analysisOn: 'all'
+        },
+        orgOptions: ORG_OPTIONS,
+        areaOptions: AREA_OPTIONS,
+        deviceOptions: DEVICE_OPTIONS,
+        jobTypeOptions: JOB_TYPE_OPTIONS,
+        approveOptions: APPROVE_OPTIONS,
+        analysisOnOptions: ANALYSIS_ON_OPTIONS,
+        pagination: {
+          current: 1,
+          pageSize: 10,
+          pageSizeOptions: [10, 25, 50, 100]
+        },
+        selectedRowKeys: [],
+        tableData: [],
+        showEditModal: false,
+        editStep: 1,
+        form: this.getEmptyForm(),
+        showMapDrawer: false,
+        cameras: CAMERAS,
+        camSearch: '',
+        showLiveDrawer: false,
+        liveCam: null,
+        camInfoPop: { visible: false, cam: null, x: 0, y: 0 },
+        // 多选摄像头: 数组形式（变更需求：可同时选择多个摄像头）
+        selectedCameraIds: [],
+        // 单个确认弹窗 (替代之前的两次确认)
+        confirmModal: { visible: false, title: '', desc: '', warning: '', confirmText: '确定', cancelText: '取消', danger: false, width: '440px', onConfirm: null, onCancel: null },
+        // 是否为"新增"模式（区别于编辑模式）
+        isAddMode: false,
+        deleteModal: { visible: false, title: '', desc: '', onConfirm: null },
+        toasts: [],
+        tooltip: { visible: false, text: '', x: 0, y: 0 },
+        selectOverflow: { visible: false, items: [], x: 0, y: 0 }
+      };
+    },
+    computed: {
+      orgOptionsForSelect() { return ORG_OPTIONS.filter(o => o.value !== 'all'); },
+      areaOptionsForSelect() { return AREA_OPTIONS.filter(o => o.value !== 'all'); },
+      deviceOptionsForSelect() { return DEVICE_OPTIONS.filter(o => o.value !== 'all'); },
+      jobTypeOptionsForSelect() { return JOB_TYPE_OPTIONS.filter(o => o.value !== 'all'); },
+      // 作业票是否有效（根据 approveStatus 推算）
+      isTicketValid() {
+        return ['已开票', '已签发', '作业中', '作业暂停'].indexOf(this.form.approveStatus) >= 0;
+      },
+      ticketValidityOf(row) {
+        return ['已开票', '已签发', '作业中', '作业暂停'].indexOf(row.approveStatus) >= 0 ? '有效' : '无效';
+      },
+      // 摄像头按距离排序并标记最近一个
+      camerasWithNearest() {
+        // 先按距离过滤已存在的，再标记最近
+        const list = this.cameras.slice().sort((a, b) => {
+          // 故障摄像头排后面
+          if (a.fault && !b.fault) return 1;
+          if (!a.fault && b.fault) return -1;
+          return a.distance - b.distance;
+        });
+        if (list.length > 0 && !list[0].fault) list[0].nearest = true;
+        return list;
+      },
+      filteredCameras() {
+        const kw = this.camSearch.trim().toLowerCase();
+        if (!kw) return this.camerasWithNearest;
+        return this.camerasWithNearest.filter(c =>
+          c.name.toLowerCase().includes(kw) ||
+          c.code.toLowerCase().includes(kw) ||
+          (c.channel && c.channel.toLowerCase().includes(kw)) ||
+          (c.org && c.org.toLowerCase().includes(kw))
+        );
+      },
+      filteredData() {
+        const f = this.filters;
+        let data = this.tableData;
+        if (f.search) {
+          const s = f.search.toLowerCase();
+          data = data.filter(d => d.code.toLowerCase().includes(s) || d.device.toLowerCase().includes(s) ||
+                                   d.jobType.toLowerCase().includes(s) || d.fullContent.toLowerCase().includes(s));
+        }
+        if (f.devices && f.devices.length && !f.devices.includes('all')) {
+          data = data.filter(d => f.devices.some(v => DEVICE_OPTIONS.find(o => o.value === v && o.label === d.device)));
+        }
+        if (f.jobTypes && f.jobTypes.length && !f.jobTypes.includes('all')) {
+          data = data.filter(d => f.jobTypes.some(v => JOB_TYPE_OPTIONS.find(o => o.value === v && o.label === d.jobType)));
+        }
+        if (f.analysisOn !== 'all') {
+          data = data.filter(d => d.analysisOn === f.analysisOn);
+        }
+        if (f.timeRange && f.timeRange.length === 2 && f.timeRange[0] && f.timeRange[1]) {
+          data = data.filter(d => d.startTime >= f.timeRange[0] && d.startTime <= f.timeRange[1]);
+        }
+        return data;
+      },
+      totalPages() {
+        return Math.max(1, Math.ceil(this.filteredData.length / this.pagination.pageSize));
+      },
+      pagedData() {
+        const start = (this.pagination.current - 1) * this.pagination.pageSize;
+        return this.filteredData.slice(start, start + this.pagination.pageSize);
+      },
+      pageNumbers() {
+        const t = this.totalPages, c = this.pagination.current;
+        const arr = [];
+        const start = Math.max(1, Math.min(t - 4, c - 2));
+        const end = Math.min(t, Math.max(5, c + 2));
+        for (let i = start; i <= end; i++) arr.push(i);
+        return arr;
+      }
+    },
+    mounted() {
+      this.updateTime();
+      setInterval(this.updateTime, 1000);
+      this.tableData = generateMockData(38);
+      // 模拟盈科系统定时同步（每30秒新增一条）
+      this.syncTimer = setInterval(this.simulateSync, 30000);
+      // 监听全局事件：select溢出tooltip
+      this.$on('show-select-overflow', (data) => {
+        this.selectOverflow = { ...this.selectOverflow, ...data };
+      });
+      // 全局点击关闭 camInfoPop
+      document.addEventListener('click', this.handleGlobalClick);
+    },
+    beforeDestroy() {
+      clearInterval(this.syncTimer);
+      document.removeEventListener('click', this.handleGlobalClick);
+    },
+    methods: {
+      handleGlobalClick(e) {
+        if (this.camInfoPop.visible && !e.target.closest('.cam-info-pop') && !e.target.closest('.cam-pin')) {
+          this.camInfoPop.visible = false;
+        }
+      },
+      getEmptyForm() {
+        return {
+          unit: '', dept: '', area: '', device: '', ticketNo: '',
+          jobType: '', level: '二级', jsaResult: '', safetyMeasures: '',
+          contractor: '', approveStatus: '待审批',
+          startTime: '', endTime: '', coord: null, coordText: '',
+          location: '', areaDesc: ''
+        };
+      },
+      updateTime() {
+        const d = new Date();
+        const weeks = ['日','一','二','三','四','五','六'];
+        this.currentTime = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+          ' 周' + weeks[d.getDay()] + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+      },
+      switchTab(key) { this.activeTab = key; },
+      onSearch() { this.pagination.current = 1; },
+      onFilterChange() { this.pagination.current = 1; },
+      resetFilters() {
+        const now = new Date();
+        const s = new Date(now); s.setDate(now.getDate() - 7); s.setHours(0,0,0,0);
+        const e = new Date(now); e.setHours(23,59,59,0);
+        this.filters = {
+          search: '', orgs: ['all'], areas: ['all'], devices: ['all'],
+          jobTypes: ['all'], timeRange: [fmtDate(s), fmtDate(e)], analysisOn: 'all'
+        };
+        this.pagination.current = 1;
+      },
+      onPageSizeChange() { this.pagination.current = 1; },
+      goToPage(v) { const n = parseInt(v, 10); if (n >= 1 && n <= this.totalPages) this.pagination.current = n; },
+      toggleRow(code) {
+        const i = this.selectedRowKeys.indexOf(code);
+        if (i >= 0) this.selectedRowKeys.splice(i, 1);
+        else this.selectedRowKeys.push(code);
+      },
+      toggleAll() {
+        if (this.selectedRowKeys.length === this.filteredData.length) this.selectedRowKeys = [];
+        else this.selectedRowKeys = this.filteredData.map(d => d.code);
+      },
+      handleDelete(row) {
+        this.deleteModal = {
+          visible: true,
+          title: '确认删除',
+          desc: '确定要删除作业任务【' + row.code + '】吗？删除后无法恢复。',
+          onConfirm: () => {
+            this.tableData = this.tableData.filter(d => d.code !== row.code);
+            this.selectedRowKeys = this.selectedRowKeys.filter(c => c !== row.code);
+            this.deleteModal.visible = false;
+            this.showToast('success', '删除成功');
+          }
+        };
+      },
+      // 新增作业任务（变更需求：手动添加空白作业）
+      handleAdd() {
+        this.editing = null;
+        this.isAddMode = true;
+        this.form = this.getEmptyForm();
+        this.editStep = 1;
+        this.selectedCameraIds = [];
+        this.showEditModal = true;
+      },
+      handleBatchDelete() {
+        if (!this.selectedRowKeys.length) return;
+        const cnt = this.selectedRowKeys.length;
+        this.deleteModal = {
+          visible: true,
+          title: '确认批量删除',
+          desc: '确定要删除选中的 ' + cnt + ' 条任务吗？删除后无法恢复。',
+          onConfirm: () => {
+            this.tableData = this.tableData.filter(d => !this.selectedRowKeys.includes(d.code));
+            this.selectedRowKeys = [];
+            this.deleteModal.visible = false;
+            this.showToast('success', '已删除 ' + cnt + ' 条任务');
+          }
+        };
+      },
+      handleExport() {
+        // 仅导出已勾选的任务
+        let exportData = [];
+        if (this.selectedRowKeys.length > 0) {
+          exportData = this.tableData.filter(d => this.selectedRowKeys.includes(d.code));
+        }
+        if (exportData.length === 0) {
+          this.showToast('error', '请先勾选要导出的任务');
+          return;
+        }
+        const headers = ['作业编号','所属装置','作业类型','检测内容','作业状态','开始时间','结束时间','分析启停','分析状态'];
+        const rows = exportData.map(d => [
+          d.code, d.device, d.jobType, d.fullContent, d.status,
+          d.startTime, d.endTime,
+          d.analysisOn ? '开启' : '关闭',
+          this.getAnalysisStatusText(d)
+        ]);
+        const csv = '\ufeff' + [headers, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '作业任务列表_' + Date.now() + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast('success', '导出成功，已下载 ' + rows.length + ' 条已勾选记录');
+      },
+      // 分析启停：单个弹窗处理（含未关联摄像头的情况）
+      handleAnalysisToggle(row, val) {
+        if (!row.cameraId) {
+          // 未关联摄像头：弹窗提示去关联
+          this.confirmModal = {
+            visible: true,
+            title: '当前作业任务未关联摄像头',
+            desc: '任务【' + row.code + '】尚未关联摄像头，是否前往关联摄像头？',
+            warning: '未关联摄像头时无法启动AI分析',
+            confirmText: '前往关联',
+            cancelText: '取消',
+            danger: false,
+            width: '440px',
+            onConfirm: () => {
+              this.confirmModal.visible = false;
+              this.handleEdit(row);
+            },
+            onCancel: () => { this.confirmModal.visible = false; }
+          };
+          return;
+        }
+        // 已关联摄像头：单击一次确认
+        if (val) {
+          // 开启分析
+          this.confirmModal = {
+            visible: true,
+            title: '确认开启AI分析',
+            desc: '即将为作业任务【' + row.code + '】开启AI分析功能。',
+            warning: '开启后将持续对该作业进行智能监测',
+            confirmText: '开启',
+            cancelText: '取消',
+            danger: false,
+            width: '440px',
+            onConfirm: () => {
+              row.analysisOn = true;
+              this.confirmModal.visible = false;
+              this.showToast('success', 'AI分析已开启');
+            },
+            onCancel: () => { this.confirmModal.visible = false; }
+          };
+        } else {
+          // 关闭分析
+          this.confirmModal = {
+            visible: true,
+            title: '摄像头分析中，是否停止分析',
+            desc: '任务【' + row.code + '】正在执行AI分析任务。',
+            warning: '关闭后将停止持续监测',
+            confirmText: '停止分析',
+            cancelText: '取消',
+            danger: true,
+            width: '440px',
+            onConfirm: () => {
+              row.analysisOn = false;
+              this.confirmModal.visible = false;
+              this.showToast('success', 'AI分析已关闭');
+            },
+            onCancel: () => { this.confirmModal.visible = false; }
+          };
+        }
+      },
+      statusToClass(s) {
+        return ({ '未开始':'not-started','进行中':'ongoing','已结束':'finished','已取消':'cancelled' })[s] || 'not-started';
+      },
+      // 分析状态：4种状态
+      analysisStatusToClass(row) {
+        if (!row.cameraId) return 'pending-associate'; // 待关联
+        if (!row.analysisOn) return 'pending-analyze'; // 待分析
+        // 已关联且启用分析：是否异常（摄像头故障）
+        const cam = this.cameras.find(c => c.id === row.cameraId);
+        if (cam && cam.fault) return 'abnormal';
+        return 'analyzing';
+      },
+      getAnalysisStatusText(row) {
+        if (!row.cameraId) return '待关联';
+        if (!row.analysisOn) return '待分析';
+        const cam = this.cameras.find(c => c.id === row.cameraId);
+        if (cam && cam.fault) return '异常';
+        return '分析中';
+      },
+      handleEdit(row) {
+        this.editing = row;
+        this.isAddMode = false;
+        this.form = this.getEmptyForm();
+        this.form.unit = '炼油一部作业班组';
+        this.form.dept = 'ref1';
+        this.form.area = 'A1';
+        this.form.device = 'D1';
+        this.form.ticketNo = row.code;
+        this.form.jobType = JOB_TYPE_OPTIONS.find(o => o.label === row.jobType)?.value || '动火';
+        this.form.level = '二级';
+        this.form.safetyMeasures = '1. 现场设置警戒隔离区\n2. 配备灭火器材\n3. 持证操作人员';
+        this.form.contractor = '中石化第十建设有限公司';
+        this.form.startTime = row.startTime;
+        this.form.endTime = row.endTime;
+        this.form.approveStatus = row.approveStatus || '已审批';
+        this.form.location = '动力锅炉单元北侧反应釜上方管道';
+        this.form.areaDesc = '周围有易燃物料管线，需重点监护';
+        this.form.coord = { x: 320, y: 280 };
+        this.form.coordText = '116.403875, 39.915168';
+        this.editStep = 1;
+        // 摄像头初始化
+        this.camSearch = '';
+        if (row.cameraId) {
+          // 兼容旧的 cameraId 字段（可能为单个 ID 或逗号分隔的多个 ID）
+          const ids = (row.cameraId || '').split(',').filter(Boolean);
+          this.selectedCameraIds = ids.filter(id => this.cameras.find(c => c.id === id));
+        } else {
+          // 默认选最近
+          const sorted = this.camerasWithNearest.slice();
+          this.selectedCameraIds = sorted[0] ? [sorted[0].id] : [];
+        }
+        this.showEditModal = true;
+      },
+      closeEditModal() {
+        this.showEditModal = false;
+        this.editStep = 1;
+        this.form = this.getEmptyForm();
+        this.selectedCameraIds = [];
+        this.isAddMode = false;
+        this.camInfoPop.visible = false;
+        this.liveCam = null;
+        this.showLiveDrawer = false;
+      },
+      goToStep2() {
+        // 至少需要选择一个摄像头
+        if (this.selectedCameraIds.length === 0) {
+          this.showToast('error', '请至少选择一个摄像头');
+          return;
+        }
+        const required = [
+          ['unit','作业单位'], ['dept','部门'], ['area','区域'], ['device','装置'],
+          ['ticketNo','作业票号'], ['jobType','作业类型'], ['contractor','施工单位'],
+          ['startTime','开始时间'], ['endTime','结束时间'], ['coordText','经纬坐标'],
+          ['location','作业部位及内容'], ['approveStatus','审批状态']
+        ];
+        for (const [k, label] of required) {
+          if (!this.form[k]) {
+            this.showToast('error', '请填写必填项：' + label);
+            return;
+          }
+        }
+        this.editStep = 2;
+        // 重新计算最近摄像头
+        const sorted = this.camerasWithNearest.slice();
+        if (this.selectedCameraIds.length === 0 && sorted.length > 0) {
+          // 如果之前未选，选最近的（避开故障）
+          const nearest = sorted.find(c => !c.fault) || sorted[0];
+          if (nearest) this.selectedCameraIds = [nearest.id];
+        }
+      },
+      camPosStyle(cam) {
+        if (!cam.pos) return {};
+        return {
+          left: (cam.pos.x * 100) + '%',
+          top: (cam.pos.y * 100) + '%'
+        };
+      },
+      onCamPinClick(e, cam) {
+        // 故障摄像头：双击无效，仅提示
+        if (cam.fault) {
+          this.showToast('error', '摄像头【' + cam.name + '】离线，无法查看详情');
+          return;
+        }
+        e.stopPropagation();
+        // 多选切换
+        this.toggleCamSelection(cam);
+        // 显示信息弹窗
+        this.camInfoPop = {
+          visible: true,
+          cam,
+          x: Math.min(e.clientX + 16, window.innerWidth - 300),
+          y: Math.min(e.clientY - 60, window.innerHeight - 320)
+        };
+      },
+      toggleCamSelection(cam) {
+        const idx = this.selectedCameraIds.indexOf(cam.id);
+        if (idx >= 0) {
+          this.selectedCameraIds.splice(idx, 1);
+        } else {
+          this.selectedCameraIds.push(cam.id);
+        }
+      },
+      isCamSelected(cam) {
+        return this.selectedCameraIds.indexOf(cam.id) >= 0;
+      },
+      onCamListClick(cam) {
+        if (cam.fault) {
+          this.showToast('error', '摄像头【' + cam.name + '】离线');
+          return;
+        }
+        // 多选切换
+        this.toggleCamSelection(cam);
+        this.camInfoPop.visible = false;
+      },
+      openLiveDrawer(cam) {
+        if (cam.fault) {
+          this.showToast('error', '摄像头【' + cam.name + '】离线，无法查看实时画面');
+          return;
+        }
+        this.liveCam = cam;
+        this.showLiveDrawer = true;
+        this.camInfoPop.visible = false;
+      },
+      selectCamera(cam) { this.toggleCamSelection(cam); },
+      saveTask() {
+        if (this.selectedCameraIds.length === 0) {
+          this.showToast('error', '请至少选择一个关联摄像头');
+          return;
+        }
+        // 校验所有选中的摄像头是否都可用
+        const selCams = this.cameras.filter(c => this.selectedCameraIds.indexOf(c.id) >= 0);
+        const faultCam = selCams.find(c => c.fault);
+        if (faultCam) {
+          this.showToast('error', '所选摄像头【' + faultCam.name + '】处于离线状态，请重新选择');
+          return;
+        }
+        // 多个摄像头以逗号分隔存到 cameraId 字段（保持向后兼容）
+        const newRow = {
+          code: this.form.ticketNo,
+          device: DEVICE_OPTIONS.find(d => d.value === this.form.device)?.label || '',
+          jobType: JOB_TYPE_OPTIONS.find(t => t.value === this.form.jobType)?.label || '',
+          content: '安全帽、工服、监护人、灭火器',
+          fullContent: '安全帽、工服、监护人、灭火器',
+          status: '未开始',
+          approveStatus: this.form.approveStatus,
+          startTime: this.form.startTime,
+          endTime: this.form.endTime,
+          analysisOn: true, // 关联摄像头后默认开启
+          cameraId: selCams.length === 1 ? selCams[0].id : selCams.map(c => c.id).join(',')
+        };
+        // 如果编辑的是已有行，则更新
+        if (this.editing && !this.isAddMode) {
+          const idx = this.tableData.findIndex(d => d.code === this.editing.code);
+          if (idx >= 0) {
+            this.tableData.splice(idx, 1, Object.assign({}, this.editing, newRow));
+            this.showToast('success', '作业任务已更新');
+          } else {
+            this.tableData.unshift(newRow);
+            this.showToast('success', '作业任务已保存');
+          }
+        } else {
+          this.tableData.unshift(newRow);
+          const camCount = selCams.length;
+          this.showToast('success', '作业任务保存成功，已关联 ' + camCount + ' 个摄像头');
+        }
+        this.closeEditModal();
+      },
+      openMapDrawer() { this.showMapDrawer = true; },
+      autoFillCoord() {
+        this.form.coord = { x: 380, y: 320 };
+        this.form.coordText = '116.404220, 39.915720';
+        this.showToast('success', '已自动带入默认坐标');
+      },
+      clearCoord() {
+        this.form.coord = null;
+        this.form.coordText = '';
+      },
+      handleMapClick(e) {
+        const img = e.currentTarget.querySelector('img');
+        if (!img) return;
+        const rect = img.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const lng = (116.40 + x / rect.width * 0.005).toFixed(6);
+        const lat = (39.91 + y / rect.height * 0.005).toFixed(6);
+        this.form.coord = { x, y };
+        this.form.coordText = lng + ', ' + lat;
+      },
+      simulateSync() {
+        const idx = this.tableData.length + 1;
+        const device = DEVICE_OPTIONS[1 + (idx % 5)].label;
+        const jobType = JOB_TYPE_OPTIONS[1 + (idx % 10)].label;
+        const shuffled = DETECTION_TYPES.slice().sort(() => 0.5 - Math.random()).slice(0, 3);
+        const content = shuffled.join('、');
+        const truncated = content.length > 20 ? content.slice(0, 20) + '…' : content;
+        const startDate = new Date();
+        const endDate = new Date(startDate.getTime() + 4 * 3600 * 1000);
+        const newRow = {
+          code: 'YK2026' + String(900 + idx).padStart(4, '0'),
+          device, jobType,
+          content: truncated,
+          fullContent: content,
+          status: '未开始',
+          approveStatus: APPROVE_STATUS_KEYS[idx % 3],
+          startTime: fmtDate(startDate),
+          endTime: fmtDate(endDate),
+          analysisOn: false,
+          cameraId: idx % 5 === 0 ? null : 'C00' + (1 + (idx % 6))
+        };
+        this.tableData.unshift(newRow);
+      },
+      showToast(type, message) {
+        const id = Date.now() + Math.random();
+        this.toasts.push({ id, type, message });
+        setTimeout(() => {
+          const i = this.toasts.findIndex(t => t.id === id);
+          if (i >= 0) this.toasts.splice(i, 1);
+        }, 2500);
+      },
+      showTip(e, text) {
+        const rect = e.target.getBoundingClientRect();
+        this.tooltip = {
+          visible: true,
+          text,
+          x: rect.left + rect.width / 2,
+          y: rect.top - 8
+        };
+      },
+      hideTip() { this.tooltip.visible = false; }
+    }
+  });
+</script>
+</body>
+</html>
