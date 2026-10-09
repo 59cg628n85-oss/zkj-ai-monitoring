@@ -1079,9 +1079,15 @@
         <span class="card-title">作业任务列表</span>
         <div class="table-toolbar" style="display: flex; align-items: center; gap: 8px;">
           <button class="btn primary" @click="handleAdd" style="margin-right: 4px;" title="新增作业任务">
-            <icon name="plus" />新增
+            <span style="display:inline-flex;align-items:center;gap:4px;">
+              <span style="font-size:15px;line-height:1;font-weight:600;">+</span>
+              <span>新增</span>
+            </span>
           </button>
           <span style="flex: 1;"></span>
+          <button class="btn" @click="refreshTableData" title="随机刷新 1-2 条数据">
+            <icon name="refresh" />刷新
+          </button>
           <button class="btn" @click="handleBatchDelete" :disabled="!selectedRowKeys.length" title="批量删除已勾选任务">
             <icon name="trash" />批量删除
           </button>
@@ -2320,6 +2326,39 @@
         this.editStep = 1;
         this.selectedCameraIds = [];
         this.showEditModal = true;
+      },
+      // 随机刷新 1-2 条数据
+      refreshTableData() {
+        if (this.tableData.length === 0) {
+          this.showToast('info', '当前表格无数据可刷新');
+          return;
+        }
+        const updateCount = Math.random() < 0.5 ? 1 : 2;
+        const idxList = [];
+        for (let i = 0; i < updateCount; i++) {
+          const idx = Math.floor(Math.random() * this.tableData.length);
+          if (idxList.indexOf(idx) < 0) idxList.push(idx);
+        }
+        const DEVICE_LABELS = DEVICE_OPTIONS.filter(d => d.value !== 'all').map(d => d.label);
+        const JOB_TYPE_LABELS = JOB_TYPE_OPTIONS.filter(t => t.value !== 'all').map(t => t.label);
+        const APPROVE_LABELS = APPROVE_OPTIONS.map(a => a.label);
+        const STATUSES = JOB_STATUSES;
+        idxList.forEach(idx => {
+          const row = this.tableData[idx];
+          const newDevice = DEVICE_LABELS[Math.floor(Math.random() * DEVICE_LABELS.length)];
+          const newJobType = JOB_TYPE_LABELS[Math.floor(Math.random() * JOB_TYPE_LABELS.length)];
+          const newStatus = STATUSES[Math.floor(Math.random() * STATUSES.length)];
+          const newApprove = APPROVE_LABELS[Math.floor(Math.random() * APPROVE_LABELS.length)];
+          const shuffled = DETECTION_TYPES.slice().sort(() => 0.5 - Math.random()).slice(0, 2 + Math.floor(Math.random() * 3));
+          const content = shuffled.join('、');
+          row.device = newDevice;
+          row.jobType = newJobType;
+          row.status = newStatus;
+          row.approveStatus = newApprove;
+          row.content = content.length > 20 ? content.slice(0, 20) + '…' : content;
+          row.fullContent = content;
+        });
+        this.showToast('success', '已随机刷新 ' + idxList.length + ' 条数据');
       },
       handleBatchDelete() {
         if (!this.selectedRowKeys.length) return;
